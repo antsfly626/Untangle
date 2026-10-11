@@ -94,16 +94,17 @@ def apply_counteroffer(plan: Plan, offer: Counteroffer, proposer: str, round_no:
         node = nodes.get(update.node_id)
         if not node:
             continue
-        if update.estimate_hours is not None and update.estimate_hours != node.estimate_hours:
+        if update.estimate_hours is not None and update.estimate_hours != (node.estimate_hours or 0):
             if node.original_estimate_hours is None:
-                node.original_estimate_hours = node.estimate_hours
+                # First real estimate becomes the baseline for the floor.
+                node.original_estimate_hours = node.estimate_hours or update.estimate_hours
             new = _floored(update.estimate_hours, node.original_estimate_hours)
             floor = " (floor: 50% of original)" if new != update.estimate_hours else ""
             notes.append(f"{node.label}: {node.estimate_hours or 0:g}h -> {new:g}h{floor}")
             node.estimate_hours = new
-        if update.cost_usd is not None and update.cost_usd != node.cost_usd:
+        if update.cost_usd is not None and update.cost_usd != (node.cost_usd or 0):
             if node.original_cost_usd is None:
-                node.original_cost_usd = node.cost_usd
+                node.original_cost_usd = node.cost_usd or update.cost_usd
             new = _floored(update.cost_usd, node.original_cost_usd)
             floor = " (floor: 50% of original)" if new != update.cost_usd else ""
             notes.append(f"{node.label}: ${node.cost_usd or 0:g} -> ${new:g}{floor}")
