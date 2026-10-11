@@ -101,5 +101,4 @@ LLM_MODEL=test LLM_BASE_URL=https://example.invalid LLM_API_KEY=test \
 
 For the complete live testing checklist, session API details, and deployment notes,
 see [backend/README.md](backend/README.md),
-[frontend/README.md](frontend/README.md), and
-[DEVELOPER_B_TASKS.md](DEVELOPER_B_TASKS.md).
+[frontend/README.md](frontend/README.md).
