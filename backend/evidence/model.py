@@ -66,12 +66,13 @@ def model_options(model: str, base_url: str | None) -> dict:
 
 async def structured_call(system: str, payload: dict, schema: type[T]) -> T:
     load_dotenv(Path(__file__).resolve().parents[1] / ".env")
-    key = os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY")
+    evidence_key = os.getenv("EVIDENCE_API_KEY")
+    key = evidence_key or os.getenv("LLM_API_KEY")
     model = os.getenv("EVIDENCE_MODEL") or os.getenv("LLM_MODEL")
     if not key or not model:
         raise EvidenceConfigurationError("Evidence model credentials or model name are not configured.")
     configured_url = os.getenv("EVIDENCE_BASE_URL")
-    if not configured_url and not os.getenv("OPENAI_API_KEY"):
+    if not configured_url and not evidence_key:
         configured_url = os.getenv("LLM_BASE_URL")
     base_url = normalize_base_url(configured_url, append_v1=not bool(os.getenv("EVIDENCE_BASE_URL")))
     # Gemini defaults can spend most of a demo request on thinking. Use its documented

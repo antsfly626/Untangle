@@ -87,7 +87,7 @@ def test_handler_rejects_bad_envelopes_before_model(monkeypatch, field):
 
 def test_missing_configuration_is_lazy_and_safe(monkeypatch):
     monkeypatch.setattr(model, "load_dotenv", lambda *args: None)
-    for name in ("OPENAI_API_KEY", "LLM_API_KEY", "EVIDENCE_MODEL", "LLM_MODEL"):
+    for name in ("EVIDENCE_API_KEY", "LLM_API_KEY", "EVIDENCE_MODEL", "LLM_MODEL"):
         monkeypatch.delenv(name, raising=False)
     with pytest.raises(model.EvidenceConfigurationError):
         asyncio.run(model.structured_call("system", {}, EvidenceReview))
@@ -96,8 +96,9 @@ def test_missing_configuration_is_lazy_and_safe(monkeypatch):
 @pytest.mark.parametrize("mode", ["success", "refusal", "connection", "invalid"])
 def test_sdk_structured_boundary(monkeypatch, mode):
     monkeypatch.setattr(model, "load_dotenv", lambda *args: None)
-    monkeypatch.setenv("OPENAI_API_KEY", "test-secret")
+    monkeypatch.setenv("EVIDENCE_API_KEY", "test-secret")
     monkeypatch.setenv("EVIDENCE_MODEL", "configured-model")
+    monkeypatch.setenv("EVIDENCE_BASE_URL", "https://provider.example/v1")
     calls = []
     class Client:
         def __init__(self, **kwargs):
@@ -155,7 +156,7 @@ def test_provider_errors_are_actionable_and_safe(monkeypatch, status, code):
     monkeypatch.setenv("LLM_API_KEY", "private-api-key")
     monkeypatch.setenv("LLM_MODEL", "gemini-3.8-flash")
     monkeypatch.setenv("LLM_BASE_URL", "https://generativelanguage.googleapis.com/v1beta")
-    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("EVIDENCE_API_KEY", raising=False)
     monkeypatch.delenv("EVIDENCE_BASE_URL", raising=False)
     class Client:
         def __init__(self, **kwargs):
@@ -181,3 +182,30 @@ def test_provider_errors_are_actionable_and_safe(monkeypatch, status, code):
     assert result.status_code == 502
     assert result.json()["detail"] == model.ERROR_DETAILS[code]
     assert "private-api-key" not in result.text
+
+
+def test_evidence_credentials_override_shared_provider_settings(monkeypatch):
+    monkeypatch.setattr(model, "load_dotenv", lambda *args: None)
+    monkeypatch.setenv("EVIDENCE_API_KEY", "evidence-key")
+    monkeypatch.setenv("EVIDENCE_MODEL", "evidence-model")
+    monkeypatch.setenv("EVIDENCE_BASE_URL", "https://evidence.example/v1")
+    monkeypatch.setenv("LLM_API_KEY", "shared-key")
+    monkeypatch.setenv("LLM_MODEL", "shared-model")
+    monkeypatch.setenv("LLM_BASE_URL", "https://shared.example/v1")
+
+    class Client:
+        def __init__(self, **kwargs):
+            assert kwargs["api_key"] == "evidence-key"
+            assert kwargs["base_url"] == "https://evidence.example/v1"
+            self.beta = SimpleNamespace(chat=SimpleNamespace(completions=self))
+        async def __aenter__(self):
+            return self
+        async def __aexit__(self, *args):
+            pass
+        async def parse(self, **kwargs):
+            assert kwargs["model"] == "evidence-model"
+            return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(refusal=None, parsed=response().review))])
+
+    monkeypatch.setattr(model, "AsyncOpenAI", Client)
+    result = asyncio.run(model.structured_call("system", {}, EvidenceReview))
+    assert result.vote == "accept"
