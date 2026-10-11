@@ -4,15 +4,12 @@
   "constraints": {
     "team_size": 2,
     "timeline_weeks": 8.0,
-    "hours_per_week": 12.0,
+    "weekly_hours": 24.0,
     "budget_usd": 300.0,
-    "must_have": [
-      "post leftover food",
-      "student notifications"
-    ],
     "avoid": [
       "charging students"
-    ]
+    ],
+    "assumed": []
   },
   "nodes": [
     {
@@ -31,7 +28,11 @@
       "objections": [],
       "evidence": [],
       "estimate_hours": null,
-      "cost_usd": null
+      "cost_usd": null,
+      "original_estimate_hours": null,
+      "original_cost_usd": null,
+      "required": false,
+      "locked": false
     },
     {
       "id": "f-post",
@@ -49,7 +50,11 @@
       "objections": [],
       "evidence": [],
       "estimate_hours": 15.0,
-      "cost_usd": 0.0
+      "cost_usd": 0.0,
+      "original_estimate_hours": null,
+      "original_cost_usd": null,
+      "required": true,
+      "locked": false
     },
     {
       "id": "f-feed",
@@ -67,7 +72,11 @@
       "objections": [],
       "evidence": [],
       "estimate_hours": 12.0,
-      "cost_usd": 0.0
+      "cost_usd": 0.0,
+      "original_estimate_hours": null,
+      "original_cost_usd": null,
+      "required": false,
+      "locked": false
     },
     {
       "id": "f-push",
@@ -85,7 +94,11 @@
       "objections": [],
       "evidence": [],
       "estimate_hours": 15.0,
-      "cost_usd": 0.0
+      "cost_usd": 0.0,
+      "original_estimate_hours": null,
+      "original_cost_usd": null,
+      "required": true,
+      "locked": false
     },
     {
       "id": "f-sms",
@@ -99,53 +112,54 @@
       "objections": [
         {
           "agent": "architect",
-          "reason": "SMS adds cost and consent/delivery complexity; validate student uptake with app push first.",
+          "reason": "Validate demand before adding a paid notification channel.",
           "severity": "concern"
         },
         {
           "agent": "delivery",
-          "reason": "Adds $250 in cost and is unnecessary for an initial app-based launch.",
+          "reason": "The added cost is not justified before validating demand for another alert channel.",
           "severity": "concern"
         },
         {
           "agent": "evidence",
-          "reason": "The $250 cost consumes most of the budget, and SMS consent and number handling add privacy work.",
+          "reason": "Validate demand before spending much of the budget on SMS.",
           "severity": "concern"
         }
       ],
       "evidence": [],
       "estimate_hours": 6.0,
-      "cost_usd": 250.0
+      "cost_usd": 250.0,
+      "original_estimate_hours": null,
+      "original_cost_usd": null,
+      "required": false,
+      "locked": false
     },
     {
       "id": "f-map",
       "label": "Live map of food locations",
       "type": "feature",
-      "status": "deferred",
+      "status": "disputed",
       "parent": "root",
       "proposed_by": "user",
       "rationale": "User asked for it; makes finding food in unfamiliar buildings easy",
-      "supported_by": [],
+      "supported_by": [
+        "architect",
+        "evidence"
+      ],
       "objections": [
         {
-          "agent": "architect",
-          "reason": "A custom live map is costly for an eight-week launch; retain useful location directions through the smaller text-and-link variant.",
-          "severity": "concern"
-        },
-        {
           "agent": "delivery",
-          "reason": "A live map adds substantial effort beyond the text location students need to find food.",
-          "severity": "concern"
-        },
-        {
-          "agent": "evidence",
-          "reason": "A live map is not needed to test the core value and adds substantial build time.",
-          "severity": "concern"
+          "reason": "A live map adds substantial work without being necessary for the pilot; use the text-location variant instead.",
+          "severity": "blocking"
         }
       ],
       "evidence": [],
       "estimate_hours": 30.0,
-      "cost_usd": 0.0
+      "cost_usd": 0.0,
+      "original_estimate_hours": null,
+      "original_cost_usd": null,
+      "required": false,
+      "locked": false
     },
     {
       "id": "r1-delivery-1",
@@ -163,13 +177,17 @@
       "objections": [],
       "evidence": [],
       "estimate_hours": 2.0,
-      "cost_usd": 0.0
+      "cost_usd": 0.0,
+      "original_estimate_hours": null,
+      "original_cost_usd": null,
+      "required": false,
+      "locked": false
     },
     {
       "id": "f-claim",
       "label": "Claim / reserve a portion",
       "type": "feature",
-      "status": "agreed",
+      "status": "deferred",
       "parent": "root",
       "proposed_by": "architect",
       "rationale": "Prevents wasted trips when food is gone",
@@ -179,24 +197,28 @@
       "objections": [
         {
           "agent": "delivery",
-          "reason": "Reservation state and handling add complexity; validate demand before building it.",
-          "severity": "concern"
+          "reason": "Reservations add coordination work and are not necessary to test whether the core sharing flow works.",
+          "severity": "blocking"
         },
         {
           "agent": "evidence",
-          "reason": "Useful later for reducing wasted trips, but availability can be tested with a simple organizer update first.",
+          "reason": "Defer reservations to make room for pilot feedback and automatic expiry without exceeding capacity.",
           "severity": "concern"
         }
       ],
       "evidence": [],
       "estimate_hours": 14.0,
-      "cost_usd": 0.0
+      "cost_usd": 0.0,
+      "original_estimate_hours": null,
+      "original_cost_usd": null,
+      "required": false,
+      "locked": false
     },
     {
       "id": "f-chat",
       "label": "In-app chat between organizers and students",
       "type": "feature",
-      "status": "rejected",
+      "status": "deferred",
       "parent": "root",
       "proposed_by": "architect",
       "rationale": "Questions like 'is there any vegan food left?'",
@@ -204,23 +226,27 @@
       "objections": [
         {
           "agent": "architect",
-          "reason": "Chat introduces moderation and privacy work without being necessary for the core pickup flow.",
+          "reason": "Chat adds moderation and privacy work that is not needed to validate the core flow.",
           "severity": "concern"
         },
         {
           "agent": "delivery",
-          "reason": "Messaging is not needed to launch and expands moderation and implementation work.",
+          "reason": "Chat adds moderation and privacy complexity beyond the pilot's needs.",
           "severity": "concern"
         },
         {
           "agent": "evidence",
-          "reason": "Not essential to the pilot and increases moderation and privacy burden.",
+          "reason": "Chat is not essential to test the core posting and discovery flow and adds moderation work.",
           "severity": "concern"
         }
       ],
       "evidence": [],
       "estimate_hours": 20.0,
-      "cost_usd": 0.0
+      "cost_usd": 0.0,
+      "original_estimate_hours": null,
+      "original_cost_usd": null,
+      "required": false,
+      "locked": false
     },
     {
       "id": "f-auth",
@@ -238,7 +264,11 @@
       "objections": [],
       "evidence": [],
       "estimate_hours": 10.0,
-      "cost_usd": 0.0
+      "cost_usd": 0.0,
+      "original_estimate_hours": null,
+      "original_cost_usd": null,
+      "required": false,
+      "locked": false
     },
     {
       "id": "c-free",
@@ -256,7 +286,11 @@
       "objections": [],
       "evidence": [],
       "estimate_hours": null,
-      "cost_usd": null
+      "cost_usd": null,
+      "original_estimate_hours": null,
+      "original_cost_usd": null,
+      "required": true,
+      "locked": false
     },
     {
       "id": "c-allergen",
@@ -274,7 +308,11 @@
       "objections": [],
       "evidence": [],
       "estimate_hours": 6.0,
-      "cost_usd": 0.0
+      "cost_usd": 0.0,
+      "original_estimate_hours": null,
+      "original_cost_usd": null,
+      "required": false,
+      "locked": false
     },
     {
       "id": "r-safety",
@@ -292,7 +330,11 @@
       "objections": [],
       "evidence": [],
       "estimate_hours": 8.0,
-      "cost_usd": 0.0
+      "cost_usd": 0.0,
+      "original_estimate_hours": null,
+      "original_cost_usd": null,
+      "required": false,
+      "locked": false
     },
     {
       "id": "r-trust",
@@ -320,7 +362,11 @@
         }
       ],
       "estimate_hours": null,
-      "cost_usd": null
+      "cost_usd": null,
+      "original_estimate_hours": null,
+      "original_cost_usd": null,
+      "required": false,
+      "locked": false
     },
     {
       "id": "c-hosting",
@@ -338,7 +384,11 @@
       "objections": [],
       "evidence": [],
       "estimate_hours": 2.0,
-      "cost_usd": 60.0
+      "cost_usd": 60.0,
+      "original_estimate_hours": null,
+      "original_cost_usd": null,
+      "required": false,
+      "locked": false
     },
     {
       "id": "q-orgs",
@@ -352,71 +402,103 @@
       "objections": [],
       "evidence": [],
       "estimate_hours": null,
-      "cost_usd": null
+      "cost_usd": null,
+      "original_estimate_hours": null,
+      "original_cost_usd": null,
+      "required": false,
+      "locked": false
     },
     {
-      "id": "r1-architect-1",
-      "label": "Food availability lifecycle: organizers can mark posts picked up or unavailable, and posts automatically expire at the pickup-window end",
-      "type": "feature",
+      "id": "r1-evidence-1",
+      "label": "Show allergen information as organizer-provided; allow unknown and warn that information is not independently verified",
+      "type": "constraint",
       "status": "agreed",
+      "parent": "f-post",
+      "proposed_by": "evidence",
+      "rationale": "Avoid giving students false confidence when allergen information is incomplete or unverified.",
+      "supported_by": [
+        "architect",
+        "delivery",
+        "evidence"
+      ],
+      "objections": [],
+      "evidence": [],
+      "estimate_hours": 2.0,
+      "cost_usd": 0.0,
+      "original_estimate_hours": 2.0,
+      "original_cost_usd": 0.0,
+      "required": false,
+      "locked": false
+    },
+    {
+      "id": "r1-evidence-2",
+      "label": "Push notifications require student opt-in",
+      "type": "constraint",
+      "status": "agreed",
+      "parent": "f-push",
+      "proposed_by": "evidence",
+      "rationale": "Respect student choice and avoid unsolicited notifications.",
+      "supported_by": [
+        "architect",
+        "delivery",
+        "evidence"
+      ],
+      "objections": [],
+      "evidence": [],
+      "estimate_hours": 2.0,
+      "cost_usd": 0.0,
+      "original_estimate_hours": 2.0,
+      "original_cost_usd": 0.0,
+      "required": false,
+      "locked": false
+    },
+    {
+      "id": "r1-evidence-3",
+      "label": "Pilot with campus organizers and gather student feedback",
+      "type": "question",
+      "status": "proposed",
       "parent": "root",
-      "proposed_by": "architect",
-      "rationale": "Keeps the feed, claims, and alerts from sending students to food that is no longer available.",
+      "proposed_by": "evidence",
+      "rationale": "Validate that organizers will post and students find the feed useful before expanding scope.",
       "supported_by": [],
       "objections": [],
       "evidence": [],
-      "estimate_hours": 8.0,
-      "cost_usd": 0.0
+      "estimate_hours": 4.0,
+      "cost_usd": 0.0,
+      "original_estimate_hours": 4.0,
+      "original_cost_usd": 0.0,
+      "required": false,
+      "locked": false
     },
     {
-      "id": "r1-architect-2",
-      "label": "Student report flow for inaccurate or concerning food posts, with a basic organizer/admin review queue",
+      "id": "r2-architect-1",
+      "label": "Automatically expire food posts when their pickup window ends",
       "type": "feature",
       "status": "agreed",
-      "parent": "root",
+      "parent": "f-post",
       "proposed_by": "architect",
-      "rationale": "Provides a lightweight trust and safety response path for a campus pilot.",
-      "supported_by": [],
+      "rationale": "Prevents stale listings and reduces wasted student trips.",
+      "supported_by": [
+        "architect",
+        "delivery",
+        "evidence"
+      ],
       "objections": [],
       "evidence": [],
       "estimate_hours": 6.0,
-      "cost_usd": 0.0
-    },
-    {
-      "id": "r1-architect-3",
-      "label": "Managed backend foundation for posts, claims, campus-email auth, and web-push delivery",
-      "type": "component",
-      "status": "agreed",
-      "parent": "root",
-      "proposed_by": "architect",
-      "rationale": "Use a managed database/auth service and a responsive web app to support the core flow without custom infrastructure.",
-      "supported_by": [],
-      "objections": [],
-      "evidence": [],
-      "estimate_hours": 12.0,
-      "cost_usd": 0.0
-    },
-    {
-      "id": "r1-architect-4",
-      "label": "End-to-end testing across posting, claiming, expiry, and notification flows",
-      "type": "component",
-      "status": "agreed",
-      "parent": "root",
-      "proposed_by": "architect",
-      "rationale": "Validate the time-sensitive pickup journey and catch regressions before a campus pilot.",
-      "supported_by": [],
-      "objections": [],
-      "evidence": [],
-      "estimate_hours": 8.0,
-      "cost_usd": 0.0
+      "cost_usd": 0.0,
+      "original_estimate_hours": 6.0,
+      "original_cost_usd": 0.0,
+      "required": false,
+      "locked": false
     }
   ],
   "questions": [
     {
-      "id": "confirm-f-map",
+      "id": "decide-f-map",
       "asked_by": "protocol",
-      "question": "The agents recommend deferring 'Live map of food locations', which you asked for. OK, or keep it?",
-      "why": "architect: A custom live map is costly for an eight-week launch; retain useful location directions through the smaller text-and-link variant.; delivery: A live map adds substantial effort beyond the text location students need to find food.; evidence: A live map is not needed to test the core value and adds substantial build time.",
+      "question": "The agents disagree on 'Live map of food locations'. Build it now, defer it, or drop it?",
+      "why": "Supported by architect, evidence. Objections: delivery: A live map adds substantial work without being necessary for the pilot; use the text-location variant instead.",
       "priority": 5,
       "answer": null
     }
@@ -585,25 +667,25 @@
       "round": 1,
       "phase": "critique",
       "agent": "architect",
-      "message": "I support a launch centered on verified posts, fast alerts, and accurate availability, with building-and-room directions instead of a custom map. Defer SMS and the full map, and use that capacity to build the backend, food-status lifecycle, reporting, and end-to-end testing; the resulting plan is about 118 hours and $60.",
+      "message": "I recommend keeping the live map and push alerts rather than replacing the requested map with text-only locations. Defer SMS and chat, retain claims, and use the freed capacity for secure managed data handling and automatic post expiry; that keeps the plan within both constraints.",
       "target_node_ids": [
         "f-sms",
-        "f-map",
+        "r1-delivery-1",
         "f-chat"
       ],
       "vote": "accept",
       "scores": {
-        "technical_quality": 0.78,
-        "distinctiveness": 0.78,
-        "score": 0.835
+        "technical_quality": 0.82,
+        "distinctiveness": 0.92,
+        "score": 0.903
       },
-      "counteroffer": "Keep the core food-sharing and notification flow, replace the live map with text directions and a campus-map link, and invest spare capacity in reliable status handling, reporting, backend foundations, and testing."
+      "counteroffer": "Build the live-map core with posts, feed, push, claims, campus sign-in, and safety labels; defer SMS and chat, and add secure backend foundations plus automatic post expiry."
     },
     {
       "round": 1,
       "phase": "critique",
       "agent": "delivery",
-      "message": "I recommend a lean launch: keep posting, the feed, opt-in push notifications, campus sign-in, safety details, and text directions, while deferring SMS, the live map, claims, and chat. That is about 70 hours and $60, within the stated capacity and budget. [Vote overridden to reject: score below this agent's minimum.]",
+      "message": "I recommend a smaller pilot: keep posting, the student feed, required push notifications, campus email sign-in, allergen labels, and the food-safety checklist; defer the live map, reservations, and chat, and drop paid SMS. This brings the plan to about 70 hours and $60, with text locations and a campus-map link in place of the live map. [Vote overridden to reject: score below this agent's minimum.]",
       "target_node_ids": [
         "f-sms",
         "f-map",
@@ -612,16 +694,16 @@
       ],
       "vote": "reject",
       "scores": {
-        "low_risk": 0.7,
-        "score": 0.493
+        "low_risk": 0.72,
+        "score": 0.499
       },
-      "counteroffer": "Ship the core campus food-sharing flow with text directions; defer costly and complex extras until the pilot validates demand."
+      "counteroffer": "Deliver a low-cost campus pilot with core posting, feed, push, and safety features; use text directions instead of a live map and defer other nonessential features."
     },
     {
       "round": 1,
       "phase": "critique",
       "agent": "evidence",
-      "message": "I support a focused pilot: keep posting, feed, opt-in push, campus sign-in, and text directions, while deferring SMS, the live map, claiming, and chat. Please replace mandatory allergen labels—which could imply certainty when ingredients are unknown—with explicit known/unknown disclosures, and validate campus food-handling rules and initial organizer participation before launch.",
+      "message": "I support a focused pilot that keeps posting, the student feed, push notifications, and campus email sign-in, while deferring SMS, chat, claims, and the live map. Please make allergen information explicitly organizer-provided, allow “unknown,” and test the assumed organizer supply with a small campus pilot before expanding.",
       "target_node_ids": [
         "f-sms",
         "f-map",
@@ -631,52 +713,52 @@
       "vote": "accept",
       "scores": {
         "user_value": 0.78,
-        "safety": 0.72,
-        "score": 0.85
+        "safety": 0.8,
+        "score": 0.874
       },
-      "counteroffer": "Keep the must-have pilot and text directions, defer nonessential features, and replace potentially misleading allergen labels with transparent disclosures plus a campus-policy check."
+      "counteroffer": "Keep the required core and use text directions for the pilot; defer higher-cost or nonessential features, and add lightweight safeguards and validation."
     },
     {
       "round": 1,
       "phase": "counteroffer",
       "agent": "architect",
-      "message": "r1-architect: Keep the core food-sharing and notification flow, replace the live map with text directions and a campus-map link, and invest spare capacity in reliable status handling, reporting, backend foundations, and testing.",
+      "message": "r1-architect: Build the live-map core with posts, feed, push, claims, campus sign-in, and safety labels; defer SMS and chat, and add secure backend foundations plus automatic post expiry.",
       "target_node_ids": [],
       "vote": null,
       "scores": {},
-      "counteroffer": "Keep the core food-sharing and notification flow, replace the live map with text directions and a campus-map link, and invest spare capacity in reliable status handling, reporting, backend foundations, and testing."
+      "counteroffer": "Build the live-map core with posts, feed, push, claims, campus sign-in, and safety labels; defer SMS and chat, and add secure backend foundations plus automatic post expiry."
     },
     {
       "round": 1,
       "phase": "counteroffer",
       "agent": "delivery",
-      "message": "r1-delivery: Ship the core campus food-sharing flow with text directions; defer costly and complex extras until the pilot validates demand.",
+      "message": "r1-delivery: Deliver a low-cost campus pilot with core posting, feed, push, and safety features; use text directions instead of a live map and defer other nonessential features.",
       "target_node_ids": [],
       "vote": null,
       "scores": {},
-      "counteroffer": "Ship the core campus food-sharing flow with text directions; defer costly and complex extras until the pilot validates demand."
+      "counteroffer": "Deliver a low-cost campus pilot with core posting, feed, push, and safety features; use text directions instead of a live map and defer other nonessential features."
     },
     {
       "round": 1,
       "phase": "counteroffer",
       "agent": "evidence",
-      "message": "r1-evidence: Keep the must-have pilot and text directions, defer nonessential features, and replace potentially misleading allergen labels with transparent disclosures plus a campus-policy check.",
+      "message": "r1-evidence: Keep the required core and use text directions for the pilot; defer higher-cost or nonessential features, and add lightweight safeguards and validation.",
       "target_node_ids": [],
       "vote": null,
       "scores": {},
-      "counteroffer": "Keep the must-have pilot and text directions, defer nonessential features, and replace potentially misleading allergen labels with transparent disclosures plus a campus-policy check."
+      "counteroffer": "Keep the required core and use text directions for the pilot; defer higher-cost or nonessential features, and add lightweight safeguards and validation."
     },
     {
       "round": 1,
       "phase": "vote",
       "agent": "architect",
-      "message": "On r1-architect: Accept: it preserves the distinctive campus food-sharing and notification flow, replaces the expensive live map with useful text directions, and spends spare capacity on availability lifecycle, reporting, managed backend foundations, and end-to-end tests. Those additions make a pilot more reliable without exceeding the stated capacity or budget.",
+      "message": "On r1-architect: Accept: it preserves the live map, push, and claims while adding secure backend foundations and post expiry, with the workload still within capacity.",
       "target_node_ids": [],
       "vote": "accept",
       "scores": {
         "technical_quality": 0.82,
-        "distinctiveness": 0.82,
-        "score": 0.865
+        "distinctiveness": 0.9,
+        "score": 0.895
       },
       "counteroffer": null
     },
@@ -684,13 +766,13 @@
       "round": 1,
       "phase": "vote",
       "agent": "architect",
-      "message": "On r1-delivery: Reject: the plan preserves the core idea but uses only 52% of capacity and defers claims, leaving students exposed to wasted trips when food is gone. It also adds no explicit backend foundation, availability lifecycle, or end-to-end testing to make the time-sensitive flow reliable.",
+      "message": "On r1-delivery: Reject: text directions and a lean pilot are practical, but deferring the live map and claims removes too much of the requested product value while leaving considerable capacity unused.",
       "target_node_ids": [],
       "vote": "reject",
       "scores": {
-        "technical_quality": 0.48,
-        "distinctiveness": 0.66,
-        "score": 0.59
+        "technical_quality": 0.76,
+        "distinctiveness": 0.45,
+        "score": 0.617
       },
       "counteroffer": null
     },
@@ -698,13 +780,13 @@
       "round": 1,
       "phase": "vote",
       "agent": "architect",
-      "message": "On r1-evidence: Accept: it keeps the core food-sharing and notification experience, improves the safety of allergen information by avoiding false assurances, and adds campus-policy validation before a pilot. Its main gaps are explicit availability lifecycle and testing work, but it remains a viable plan within the capacity and budget.",
+      "message": "On r1-evidence: Reject: the allergen caveat, opt-in, and pilot feedback improve safety and validation, but deferring the live map sacrifices a distinctive requested feature; those safeguards could be added without dropping it.",
       "target_node_ids": [],
-      "vote": "accept",
+      "vote": "reject",
       "scores": {
-        "technical_quality": 0.58,
-        "distinctiveness": 0.72,
-        "score": 0.653
+        "technical_quality": 0.8,
+        "distinctiveness": 0.48,
+        "score": 0.661
       },
       "counteroffer": null
     },
@@ -712,12 +794,12 @@
       "round": 1,
       "phase": "vote",
       "agent": "delivery",
-      "message": "On r1-architect: Accept: lifecycle handling, reporting, backend foundations, and end-to-end tests reduce pilot risks. The 118-hour plan leaves limited capacity headroom, and the backend and web-push work deserve careful execution.",
+      "message": "On r1-architect: The backend foundation and automatic expiry are useful, but a live map, claims, push, and sign-in in 124 hours leave only about 10 hours of capacity buffer. The combination creates too much delivery risk for this timeline.",
       "target_node_ids": [],
-      "vote": "accept",
+      "vote": "reject",
       "scores": {
-        "low_risk": 0.58,
-        "score": 0.796
+        "low_risk": 0.05,
+        "score": 0.592
       },
       "counteroffer": null
     },
@@ -725,12 +807,12 @@
       "round": 1,
       "phase": "vote",
       "agent": "delivery",
-      "message": "On r1-delivery: Accept: this is a lean, feasible core pilot with text directions and costly extras deferred. Without explicit post-expiry or reporting work, stale listings and trust issues remain risks, but the smaller scope is practical.",
+      "message": "On r1-delivery: This keeps the must-have posting and push features while replacing the costly live map with simple directions and deferring claims and chat. The ample schedule buffer makes a working pilot more likely, though backend foundations and notification opt-in should be addressed.",
       "target_node_ids": [],
       "vote": "accept",
       "scores": {
-        "low_risk": 0.68,
-        "score": 0.904
+        "low_risk": 0.66,
+        "score": 0.898
       },
       "counteroffer": null
     },
@@ -738,7 +820,7 @@
       "round": 1,
       "phase": "vote",
       "agent": "delivery",
-      "message": "On r1-evidence: Accept: transparent ingredient and allergen disclosures avoid implying food is safe when information is unknown, and checking campus rules and organizer participation addresses key launch uncertainties. The core flow stays within the team's capacity.",
+      "message": "On r1-evidence: This preserves the lean pilot scope and adds practical safeguards for unverified allergen information, opt-in notifications, and early user validation. Those additions reduce rollout risk without consuming much of the available capacity.",
       "target_node_ids": [],
       "vote": "accept",
       "scores": {
@@ -751,13 +833,27 @@
       "round": 1,
       "phase": "vote",
       "agent": "evidence",
-      "message": "On r1-architect: Accept: text directions preserve most map value, and expiry/status handling, reporting, and end-to-end tests strengthen the time-sensitive flow. The plan is within capacity, though it should also validate campus food rules and avoid suggesting required allergen labels establish safety.",
+      "message": "On r1-architect: I could accept this plan: it preserves the required features and adds backend access rules and post expiry, which help reliability. I prefer it to the current plan, though the map-and-claims scope is ambitious and allergen uncertainty, notification opt-in, and pilot validation remain unaddressed.",
       "target_node_ids": [],
       "vote": "accept",
       "scores": {
-        "user_value": 0.8,
+        "user_value": 0.78,
+        "safety": 0.64,
+        "score": 0.826
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 1,
+      "phase": "vote",
+      "agent": "evidence",
+      "message": "On r1-delivery: I could accept this lean pilot: text directions are a practical substitute for a live map, and required features and food-safety measures remain. I prefer it to the current plan, but would want allergen uncertainty and push opt-in made explicit, plus a way to validate organizer and student demand.",
+      "target_node_ids": [],
+      "vote": "accept",
+      "scores": {
+        "user_value": 0.72,
         "safety": 0.7,
-        "score": 0.85
+        "score": 0.826
       },
       "counteroffer": null
     },
@@ -765,27 +861,13 @@
       "round": 1,
       "phase": "vote",
       "agent": "evidence",
-      "message": "On r1-delivery: Reject: this is a buildable narrow scope, but it leaves organizer participation unvalidated and lacks explicit expiry or status handling, so students may be notified about food that is no longer available. Those gaps weaken the core time-sensitive value of the pilot.",
-      "target_node_ids": [],
-      "vote": "reject",
-      "scores": {
-        "user_value": 0.62,
-        "safety": 0.55,
-        "score": 0.751
-      },
-      "counteroffer": null
-    },
-    {
-      "round": 1,
-      "phase": "vote",
-      "agent": "evidence",
-      "message": "On r1-evidence: Accept: it preserves the must-haves and text directions while replacing potentially overconfident allergen labels with clear disclosures for unknown ingredients and allergens. Checking campus rules and starting with willing organizers is a concrete safeguard for an unvalidated pilot.",
+      "message": "On r1-evidence: This is my preferred candidate: it preserves the required core, avoids false confidence in organizer-provided allergen information, requires push opt-in, and includes a focused pilot to test whether organizers post and students find the feed useful. Text directions are a reasonable lower-cost first version while the live map remains deferred.",
       "target_node_ids": [],
       "vote": "accept",
       "scores": {
         "user_value": 0.8,
-        "safety": 0.88,
-        "score": 0.904
+        "safety": 0.9,
+        "score": 0.91
       },
       "counteroffer": null
     },
@@ -793,7 +875,338 @@
       "round": 1,
       "phase": "decision",
       "agent": "protocol",
-      "message": "r1-architect was accepted by all 3 agents and passes the hard constraints. Tie broken by Nash bargaining product (balance of every agent's margin above its minimum): r1-architect 0.0147, r1-evidence 0.0069.",
+      "message": "No candidate was accepted by everyone. r1-evidence has the most support (2/3) and becomes the draft for the next round. Tie broken by Nash bargaining product (balance of every agent's margin above its minimum): r1-evidence 0.0080, r1-delivery 0.0020, r1-architect 0.0007.",
+      "target_node_ids": [],
+      "vote": null,
+      "scores": {},
+      "counteroffer": null
+    },
+    {
+      "round": 2,
+      "phase": "critique",
+      "agent": "architect",
+      "message": "The text-location pilot is a reasonable fallback, but with only 58% of capacity planned it leaves enough room to deliver the live map the user asked for, alongside claims that prevent wasted trips. I recommend activating both and adding automatic expiry so old food listings do not linger. (Changed because: The measured plan shows only 78 of 134.4 available hours planned, making it clear that the requested live map and useful claims feature can fit without exceeding capacity.)",
+      "target_node_ids": [
+        "f-sms",
+        "f-chat"
+      ],
+      "vote": "reject",
+      "scores": {
+        "technical_quality": 0.82,
+        "distinctiveness": 0.88,
+        "score": 0.819
+      },
+      "counteroffer": "Keep the pilot foundation, add the live map and claims, and automatically expire posts at the end of their pickup window; this totals about 128 hours against 134.4 available."
+    },
+    {
+      "round": 2,
+      "phase": "critique",
+      "agent": "delivery",
+      "message": "I accept the focused pilot: it keeps the required posting and push experience while deferring the map, claims, chat, and SMS. The opt-in notifications, explicit handling of unknown/unverified allergen information, and organizer/student pilot make the remaining scope more responsible to test. (Changed because: The current plan now matches my recommended pilot scope and includes the proposed opt-in, allergen-uncertainty, and pilot safeguards; the measured hours and cost also remain comfortably within constraints.)",
+      "target_node_ids": [
+        "f-sms",
+        "f-map",
+        "f-claim",
+        "f-chat"
+      ],
+      "vote": "accept",
+      "scores": {
+        "low_risk": 0.78,
+        "score": 0.934
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 2,
+      "phase": "critique",
+      "agent": "evidence",
+      "message": "I continue to support the focused pilot, with allergen details clearly marked as organizer-provided and notifications opt-in. Please make the pilot feedback step active and add automatic post expiry at the pickup-window end so students are less likely to act on stale listings.",
+      "target_node_ids": [
+        "f-sms",
+        "f-map",
+        "f-claim",
+        "f-chat"
+      ],
+      "vote": "accept",
+      "scores": {
+        "user_value": 0.8,
+        "safety": 0.85,
+        "score": 0.895
+      },
+      "counteroffer": "Activate the proposed evidence and consent safeguards, and automatically expire posts when their pickup window ends."
+    },
+    {
+      "round": 2,
+      "phase": "counteroffer",
+      "agent": "architect",
+      "message": "r2-architect: Keep the pilot foundation, add the live map and claims, and automatically expire posts at the end of their pickup window; this totals about 128 hours against 134.4 available.",
+      "target_node_ids": [],
+      "vote": null,
+      "scores": {},
+      "counteroffer": "Keep the pilot foundation, add the live map and claims, and automatically expire posts at the end of their pickup window; this totals about 128 hours against 134.4 available."
+    },
+    {
+      "round": 2,
+      "phase": "counteroffer",
+      "agent": "evidence",
+      "message": "r2-evidence: Activate the proposed evidence and consent safeguards, and automatically expire posts when their pickup window ends.",
+      "target_node_ids": [],
+      "vote": null,
+      "scores": {},
+      "counteroffer": "Activate the proposed evidence and consent safeguards, and automatically expire posts when their pickup window ends."
+    },
+    {
+      "round": 2,
+      "phase": "vote",
+      "agent": "architect",
+      "message": "On r2-architect: Accept: it delivers the requested live map, push notifications, and useful claim and expiry behavior within available capacity. The schedule is tight, so keep the map implementation bounded to campus locations.",
+      "target_node_ids": [],
+      "vote": "accept",
+      "scores": {
+        "technical_quality": 0.78,
+        "distinctiveness": 0.9,
+        "score": 0.88
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 2,
+      "phase": "vote",
+      "agent": "architect",
+      "message": "On r2-evidence: Expiry is a worthwhile improvement, but leaving the requested live map disputed retains only the text-and-link fallback and weakens the product’s distinctive value.",
+      "target_node_ids": [],
+      "vote": "reject",
+      "scores": {
+        "technical_quality": 0.78,
+        "distinctiveness": 0.42,
+        "score": 0.7
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 2,
+      "phase": "vote",
+      "agent": "delivery",
+      "message": "On r2-architect: I would not commit the pilot to the full live map and claims: they add implementation and integration risk, and 128 planned hours leaves too little buffer for a reliable launch.",
+      "target_node_ids": [],
+      "vote": "reject",
+      "scores": {
+        "low_risk": 0.45,
+        "score": 0.683
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 2,
+      "phase": "vote",
+      "agent": "delivery",
+      "message": "On r2-evidence: Automatic expiry is a modest, practical improvement that helps avoid stale listings without taking on the live map and claims. The schedule is tight, but this is a manageable addition for the pilot.",
+      "target_node_ids": [],
+      "vote": "accept",
+      "scores": {
+        "low_risk": 0.65,
+        "score": 0.757
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 2,
+      "phase": "vote",
+      "agent": "evidence",
+      "message": "On r2-architect: Acceptable because it retains opt-in notifications, organizer-provided allergen warnings, and adds expiry while delivering the requested map. Claims and the map add scope with only about six hours of remaining capacity; confirm claimed portions and availability can be updated, and monitor schedule risk.",
+      "target_node_ids": [],
+      "vote": "accept",
+      "scores": {
+        "user_value": 0.8,
+        "safety": 0.65,
+        "score": 0.835
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 2,
+      "phase": "vote",
+      "agent": "evidence",
+      "message": "On r2-evidence: Prefer this safer, more deliverable first release: it adds expiry and retains the text location/link alternative without taking on the full map and claims. The summary says to activate the pilot, but the resulting plan still leaves it proposed; make organizer and student feedback an actual delivery task so the value assumptions are tested.",
+      "target_node_ids": [],
+      "vote": "accept",
+      "scores": {
+        "user_value": 0.69,
+        "safety": 0.82,
+        "score": 0.853
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 2,
+      "phase": "decision",
+      "agent": "protocol",
+      "message": "No candidate was accepted by everyone. r2-architect has the most support (2/3) and becomes the draft for the next round. Tie broken by Nash bargaining product (balance of every agent's margin above its minimum): r2-architect 0.0066, r2-evidence 0.0048.",
+      "target_node_ids": [],
+      "vote": null,
+      "scores": {},
+      "counteroffer": null
+    },
+    {
+      "round": 3,
+      "phase": "critique",
+      "agent": "architect",
+      "message": "I accept the plan with the live map and claims retained: they preserve the requested experience and fit within the measured capacity. Please activate automatic expiry and the pilot-feedback step, and keep SMS and chat deferred for this pilot. (Changed because: The current measured plan shows the live map and claims fit within 95% of available capacity, rather than the 58% utilization I understood previously; Evidence also made the concrete case for expiry and an active pilot-feedback step.)",
+      "target_node_ids": [
+        "f-sms",
+        "f-chat"
+      ],
+      "vote": "accept",
+      "scores": {
+        "technical_quality": 0.78,
+        "distinctiveness": 0.84,
+        "score": 0.857
+      },
+      "counteroffer": "Make stale-listing prevention and pilot validation active without expanding the planned scope."
+    },
+    {
+      "round": 3,
+      "phase": "critique",
+      "agent": "delivery",
+      "message": "I reject the current scope as too close to full capacity for a reliable pilot. Defer the live map and claims, keep the low-cost text-location variant, and activate automatic expiry and pilot feedback so the team can validate the core service with useful delivery buffer. (Changed because: The current plan now has the live map and claims agreed and totals 128 planned hours against 134.4 hours of capacity, unlike the focused pilot I previously accepted.)",
+      "target_node_ids": [
+        "f-sms",
+        "f-map",
+        "f-claim",
+        "f-chat"
+      ],
+      "vote": "reject",
+      "scores": {
+        "low_risk": 0.78,
+        "score": 0.782
+      },
+      "counteroffer": "Focus the pilot on posting, feed, opt-in push, campus sign-in, and text-based locations; defer the live map and claims, while activating expiry and pilot feedback."
+    },
+    {
+      "round": 3,
+      "phase": "critique",
+      "agent": "evidence",
+      "message": "I support keeping the live map the user asked for, but the current plan is already at 95% of capacity. Defer claims to activate both the organizer/student pilot feedback and automatic post expiry; retain opt-in push and clearly mark allergen details as organizer-provided or unknown. (Changed because: The current plan includes the requested live map but is at 95% of capacity, while pilot feedback and automatic expiry remain proposed; deferring claims makes room for those validation and stale-listing safeguards.)",
+      "target_node_ids": [
+        "f-sms",
+        "f-claim",
+        "f-chat"
+      ],
+      "vote": "accept",
+      "scores": {
+        "user_value": 0.82,
+        "safety": 0.78,
+        "score": 0.88
+      },
+      "counteroffer": "Keep the requested live map, defer claims, and use the freed capacity for pilot feedback and automatic expiry."
+    },
+    {
+      "round": 3,
+      "phase": "counteroffer",
+      "agent": "delivery",
+      "message": "r3-delivery: Focus the pilot on posting, feed, opt-in push, campus sign-in, and text-based locations; defer the live map and claims, while activating expiry and pilot feedback.",
+      "target_node_ids": [],
+      "vote": null,
+      "scores": {},
+      "counteroffer": "Focus the pilot on posting, feed, opt-in push, campus sign-in, and text-based locations; defer the live map and claims, while activating expiry and pilot feedback."
+    },
+    {
+      "round": 3,
+      "phase": "counteroffer",
+      "agent": "evidence",
+      "message": "r3-evidence: Keep the requested live map, defer claims, and use the freed capacity for pilot feedback and automatic expiry.",
+      "target_node_ids": [],
+      "vote": null,
+      "scores": {},
+      "counteroffer": "Keep the requested live map, defer claims, and use the freed capacity for pilot feedback and automatic expiry."
+    },
+    {
+      "round": 3,
+      "phase": "vote",
+      "agent": "architect",
+      "message": "On r3-delivery: Reject: deferring the requested live map and relying on text locations removes a distinctive user-requested feature. The extra capacity does not compensate for that loss.",
+      "target_node_ids": [],
+      "vote": "reject",
+      "scores": {
+        "technical_quality": 0.82,
+        "distinctiveness": 0.48,
+        "score": 0.683
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 3,
+      "phase": "vote",
+      "agent": "architect",
+      "message": "On r3-evidence: This is closer to the right scope because it defers claims and retains room for the live map. Reject as written because f-map remains disputed, and pilot feedback remains proposed rather than activated; the resulting plan does not make the summary's commitments explicit.",
+      "target_node_ids": [],
+      "vote": "reject",
+      "scores": {
+        "technical_quality": 0.82,
+        "distinctiveness": 0.78,
+        "score": 0.85
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 3,
+      "phase": "vote",
+      "agent": "delivery",
+      "message": "On r3-delivery: Accept: it retains the required features and offers a focused pilot with substantially more capacity buffer and low cost.",
+      "target_node_ids": [],
+      "vote": "accept",
+      "scores": {
+        "low_risk": 0.85,
+        "score": 0.955
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 3,
+      "phase": "vote",
+      "agent": "delivery",
+      "message": "On r3-evidence: Acceptable, but less preferred: it fits the stated capacity and includes the requested live map, though map implementation increases scope and leaves less buffer than the delivery candidate.",
+      "target_node_ids": [],
+      "vote": "accept",
+      "scores": {
+        "low_risk": 0.62,
+        "score": 0.838
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 3,
+      "phase": "vote",
+      "agent": "evidence",
+      "message": "On r3-delivery: Acceptable, more feasible scope with text locations as a useful compromise, but deferring the requested live map gives up some user value.",
+      "target_node_ids": [],
+      "vote": "accept",
+      "scores": {
+        "user_value": 0.75,
+        "safety": 0.78,
+        "score": 0.859
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 3,
+      "phase": "vote",
+      "agent": "evidence",
+      "message": "On r3-evidence: Acceptable and better aligned with the user's live-map request while deferring claims; the 114-hour workload is feasible but leaves a narrower buffer.",
+      "target_node_ids": [],
+      "vote": "accept",
+      "scores": {
+        "user_value": 0.84,
+        "safety": 0.76,
+        "score": 0.88
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 3,
+      "phase": "decision",
+      "agent": "protocol",
+      "message": "No candidate was accepted by everyone. r3-evidence has the most support (2/3) and becomes the draft for the next round. Tie broken by Nash bargaining product (balance of every agent's margin above its minimum): r3-evidence 0.0187, r3-delivery 0.0091.",
       "target_node_ids": [],
       "vote": null,
       "scores": {},
@@ -802,10 +1215,12 @@
   ],
   "events": [],
   "outcome": {
-    "status": "consensus",
-    "summary": "All agents accepted the plan after 1 round(s).",
-    "rounds_used": 1,
-    "open_disputes": [],
+    "status": "escalated",
+    "summary": "1 subjective tradeoff(s) remain disputed. Keeping the disagreement visible and asking the user.",
+    "rounds_used": 3,
+    "open_disputes": [
+      "f-map"
+    ],
     "hard_constraint_violations": []
   }
 }

@@ -233,24 +233,6 @@ def pick_improvement(
     )
 
 
-def peer_arguments(reviews: dict[str, Review], exclude: str) -> Optional[list[dict]]:
-    """Other agents' arguments, deliberately without their votes."""
-    args = [
-        {
-            "agent": r.agent,
-            "message": r.message,
-            "positions": [
-                {"node_id": p.node_id, "position": p.position, "reason": p.reason}
-                for p in r.positions
-                if p.position != "keep"
-            ],
-        }
-        for r in reviews.values()
-        if r.agent != exclude
-    ]
-    return args or None
-
-
 def _critique_text(r: Review) -> str:
     if r.error:
         return f"[Unavailable this round ({r.error}); counts as reject: no consent without a voice.]"
@@ -387,9 +369,14 @@ async def negotiate(
     agents: list[Agent] = CORE_AGENTS,
     max_rounds: int = MAX_ROUNDS,
     on_update: OnUpdate = None,
+    transport=None,
 ) -> Plan:
     """Run up to max_rounds of critique -> counteroffer -> vote. Continues the
-    round numbering of any earlier negotiation on this plan (e.g. after an event)."""
+    round numbering of any earlier negotiation on this plan (e.g. after an event).
+    transport: how agents are reached (local objects, or A2A servers over SLIM)."""
+    from transport import default_transport
+
+    transport = transport or default_transport()
     current = plan.model_copy(deep=True)
     history = current.negotiation
     first = max((m.round for m in history), default=0) + 1
@@ -411,7 +398,7 @@ async def negotiate(
         for c in candidates:
             log(round_no, "counteroffer", c.proposer, f"{c.id}: {c.summary}", counteroffer=c.summary)
         await emit()
-        ballots = await asyncio.gather(*(a.vote_on(current, candidates) for a in agents))
+        ballots = await transport.vote_all(agents, current, candidates)
         tally: dict[str, list[CandidateVote]] = {c.id: [] for c in candidates}
         for agent, votes in zip(agents, ballots):
             for v in votes:
@@ -430,13 +417,8 @@ async def negotiate(
     for round_no in range(first, first + max_rounds):
         rounds_used += 1
 
-        # 1. Critique: independent parallel calls.
-        reviews = await asyncio.gather(
-            *(
-                a.review(current, round_no, peer_arguments(last_reviews, a.id), last_reviews.get(a.id))
-                for a in agents
-            )
-        )
+        # 1. Critique: independent parallel calls (broadcast over SLIM when enabled).
+        reviews = await transport.review_all(agents, current, round_no, last_reviews)
         last_reviews = {r.agent: r for r in reviews}
         for r in reviews:
             log(

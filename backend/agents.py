@@ -195,6 +195,24 @@ def plan_brief(plan: Plan) -> dict:
     }
 
 
+def peer_arguments(reviews: dict[str, Review], exclude: str) -> Optional[list[dict]]:
+    """Other agents' arguments, deliberately without their votes."""
+    args = [
+        {
+            "agent": r.agent,
+            "message": r.message,
+            "positions": [
+                {"node_id": p.node_id, "position": p.position, "reason": p.reason}
+                for p in r.positions
+                if p.position != "keep"
+            ],
+        }
+        for r in reviews.values()
+        if r.agent != exclude
+    ]
+    return args or None
+
+
 def _vote(raw: object) -> Vote:
     return "accept" if str(raw).strip().lower() == "accept" else "reject"
 
