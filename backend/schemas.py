@@ -126,6 +126,8 @@ class NegotiationMessage(BaseModel):
     # Agent's own objective scores, 0-1 (e.g. {"feasibility": 0.4}).
     scores: dict[str, float] = {}
     counteroffer: Optional[str] = None
+    # Complete Evidence response (papers, warnings, exact proposal reference).
+    evidence: Optional[dict] = None
 
 
 class Event(BaseModel):

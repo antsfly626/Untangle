@@ -183,10 +183,22 @@ class SlimTransport:
         for a in agents:
             reply = replies.get(a.id) or {}
             if "review" in reply:
-                reviews.append(Review.model_validate(reply["review"]))
-            else:
-                reason = reply.get("error") or "no reply over SLIM"
-                reviews.append(Review(agent=a.id, message="(unavailable this round)", error=reason))
+                try:
+                    review = Review.model_validate(reply["review"])
+                    if review.agent != a.id:
+                        raise ValueError("agent mismatch")
+                    if a.id == "evidence":
+                        from evidence.negotiator import current_proposal_id, validate_metadata
+                        validate_metadata(review, plan, current_proposal_id(plan, round_no), round_no)
+                    reviews.append(review)
+                    continue
+                except ValueError:
+                    reply = {"error": "invalid or mismatched agent review"}
+            reason = reply.get("error") or "no reply over SLIM"
+            reviews.append(Review(agent=a.id, message="(unavailable this round)", error=reason,
+                                  vote="abstain" if a.id == "evidence" else "reject",
+                                  llm_vote="abstain" if a.id == "evidence" else "reject",
+                                  score_informational=a.id == "evidence"))
         return reviews
 
     async def vote_all(self, agents: list[Agent], plan: Plan, candidates: list[Candidate]) -> list[list[CandidateVote]]:
@@ -205,15 +217,34 @@ class SlimTransport:
         for a in agents:
             reply = replies.get(a.id) or {}
             if "votes" in reply:
-                ballots.append([CandidateVote.model_validate(v) for v in reply["votes"]])
-            else:
-                reason = f"unavailable ({reply.get('error') or 'no reply over SLIM'})"
-                ballots.append([CandidateVote(candidate_id=c.id, agent=a.id, reason=reason) for c in candidates])
+                try:
+                    votes = [CandidateVote.model_validate(v) for v in reply["votes"]]
+                    by_id = {v.candidate_id: v for v in votes}
+                    if (len(by_id) != len(votes) or set(by_id) != {c.id for c in candidates}
+                            or any(v.agent != a.id for v in votes)):
+                        raise ValueError("invalid ballot identities")
+                    if a.id == "evidence":
+                        from evidence.negotiator import validate_metadata
+                        round_no = max((message.round for message in plan.negotiation), default=1)
+                        for candidate in candidates:
+                            validate_metadata(by_id[candidate.id], candidate.plan, candidate.id, round_no)
+                    ballots.append(votes)
+                    continue
+                except ValueError:
+                    reply = {"error": "invalid or mismatched candidate ballot"}
+            reason = f"unavailable ({reply.get('error') or 'no reply over SLIM'})"
+            ballots.append([CandidateVote(candidate_id=c.id, agent=a.id, reason=reason,
+                                          vote="abstain" if a.id == "evidence" else "reject",
+                                          llm_vote="abstain" if a.id == "evidence" else "reject",
+                                          score_informational=a.id == "evidence") for c in candidates])
         return ballots
 
 
 async def handle_request(agent: Agent, request: dict) -> dict:
     """Server side: run one agent's turn for a request received over SLIM."""
+    if request.get("type") == "evaluate_plan" and agent.id == "evidence":
+        from evidence.interfaces import handle_evidence_message
+        return await handle_evidence_message(request)
     plan = Plan.model_validate(request["plan"])
     if request.get("op") == "review":
         last = {k: Review.model_validate(v) for k, v in (request.get("last_reviews") or {}).items()}

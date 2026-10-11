@@ -29,8 +29,10 @@ from intake import ask, extract, ready_to_negotiate, skip_open_questions, update
 from negotiation import negotiate
 from schemas import Plan
 from transport import default_transport
+from evidence.interfaces import router as evidence_router
 
 app = FastAPI(title="Untangle API")
+app.include_router(evidence_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=os.getenv("CORS_ORIGINS", "http://localhost:3000").split(","),

@@ -10,6 +10,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
+from evidence.model import model_options, normalize_base_url
 
 load_dotenv(Path(__file__).resolve().parent / ".env")
 
@@ -21,7 +22,7 @@ MODEL = os.environ["LLM_MODEL"]
 # The SDK already retries connection errors, 429s, and 5xx; the timeout stops
 # one hung call from freezing a whole negotiation.
 _client = AsyncOpenAI(
-    base_url=os.environ["LLM_BASE_URL"].rstrip("/") + "/v1",
+    base_url=normalize_base_url(os.environ["LLM_BASE_URL"]),
     api_key=os.environ["LLM_API_KEY"],
     timeout=120,
     max_retries=2,
@@ -44,7 +45,10 @@ async def complete_json(system: str, user: str, retries: int = 2) -> dict:
     messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
     for attempt in range(retries + 1):
         started = time.monotonic()
-        resp = await _client.chat.completions.create(model=MODEL, messages=messages)
+        resp = await _client.chat.completions.create(
+            model=MODEL, messages=messages,
+            **model_options(MODEL, os.environ["LLM_BASE_URL"]),
+        )
         stats["calls"] += 1
         stats["seconds"] += time.monotonic() - started
         if resp.usage:

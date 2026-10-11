@@ -24,6 +24,7 @@ from llm import stats
 from negotiation import negotiate
 from schemas import Plan
 from transport import LocalTransport
+from evidence.model import stats as evidence_stats
 
 IDEAS = {
     "food-sharing": (
@@ -104,11 +105,19 @@ async def run_one(name: str, text: str) -> dict:
     start = await extract(text)
 
     async def timed(coro):
-        calls, tokens, t0 = stats["calls"], stats["prompt_tokens"] + stats["completion_tokens"], time.monotonic()
+        def totals():
+            calls = stats["calls"] + evidence_stats["calls"]
+            tokens = sum(source["prompt_tokens"] + source["completion_tokens"]
+                         for source in (stats, evidence_stats))
+            return calls, tokens
+
+        calls, tokens = totals()
+        t0 = time.monotonic()
         plan = await coro
+        final_calls, final_tokens = totals()
         return plan, {
-            "llm_calls": stats["calls"] - calls,
-            "tokens": stats["prompt_tokens"] + stats["completion_tokens"] - tokens,
+            "llm_calls": final_calls - calls,
+            "tokens": final_tokens - tokens,
             "seconds": round(time.monotonic() - t0),
         }
 

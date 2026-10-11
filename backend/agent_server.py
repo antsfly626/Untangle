@@ -40,9 +40,10 @@ class NegotiatorExecutor(AgentExecutor):
             request = json.loads(context.get_user_input())
             logger.info("%s received %s request", self.agent.id, request.get("op"))
             reply = await handle_request(self.agent, request)
-        except Exception as err:  # reply with the error so the facilitator can log it
-            logger.exception("%s failed", self.agent.id)
-            reply = {"agent": self.agent.id, "error": f"{type(err).__name__}: {err}"[:200]}
+        except Exception as err:
+            # Model/provider errors may include credentials or private request contents.
+            logger.error("%s failed (%s)", self.agent.id, type(err).__name__)
+            reply = {"agent": self.agent.id, "error": "Agent request failed; no valid vote was recorded."}
         await event_queue.enqueue_event(
             Message(
                 message_id=str(uuid4()),

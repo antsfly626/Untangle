@@ -275,6 +275,19 @@
           ],
           "default": null,
           "title": "Counteroffer"
+        },
+        "evidence": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence"
         }
       },
       "required": [

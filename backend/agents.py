@@ -10,6 +10,10 @@ Design choices, each grounded in prompt/debate research:
   round 1 is independent, peers' arguments are shown without vote counts, an
   "accept" below the agent's minimum score is overridden to "reject", and vote
   flips without a stated reason are flagged.
+
+These legacy scoring rules apply to Architect and Delivery. EvidenceAgent delegates
+to the structured research pipeline; its score is informational and its explicit
+accept/reject/abstain vote is preserved by both local and AGNTCY transports.
 """
 
 from __future__ import annotations
@@ -22,9 +26,7 @@ from pydantic import BaseModel, Field
 
 from constraints import metrics, violations
 from llm import complete_json
-from schemas import Plan
-
-Vote = Literal["accept", "reject"]
+from schemas import Plan, Vote
 
 
 # ---------- what agents return ----------
@@ -80,6 +82,8 @@ class Review(BaseModel):
     unjustified_flip: bool = False
     # Set when the agent's call failed; it then counts as a reject.
     error: Optional[str] = None
+    evidence: Optional[dict] = None
+    score_informational: bool = False
 
 
 class CandidateVote(BaseModel):
@@ -93,6 +97,8 @@ class CandidateVote(BaseModel):
     overridden: bool = False
     # Stated directly, so improvements never depend on comparing scores across calls.
     prefer_over_current: bool = False
+    evidence: Optional[dict] = None
+    score_informational: bool = False
 
 
 @dataclass
@@ -421,7 +427,19 @@ DELIVERY = Agent(
     "where fit(x) = 1 up to 0.8, falling linearly to 0 at 1.2",
 )
 
-EVIDENCE = Agent(
+class EvidenceAgent(Agent):
+    """Research-backed agent served by the same AGNTCY executor as its peers."""
+
+    async def review(self, plan, round_no, peer_arguments=None, own_last=None):
+        from evidence.negotiator import review
+        return await review(plan, round_no, peer_arguments, own_last)
+
+    async def vote_on(self, plan, candidates):
+        from evidence.negotiator import vote_on
+        return await vote_on(plan, candidates)
+
+
+EVIDENCE = EvidenceAgent(
     id="evidence",
     name="Evidence & Risk",
     goal=(

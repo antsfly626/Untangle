@@ -161,6 +161,8 @@ def nash_product(votes: Sequence[Union[CandidateVote, Review]], thresholds: dict
     passes another. The 0.01 floor keeps one zero margin from erasing the rest."""
     product = 1.0
     for v in votes:
+        if v.score_informational:
+            continue
         product *= max(0.0, v.score - thresholds.get(v.agent, 0.0)) + 0.01
     return product
 
@@ -342,12 +344,12 @@ def finalize(plan: Plan, reached_consensus: bool, rounds_used: int, last_reviews
         rejecting = [
             f"{a} (its score {r.score} is below its minimum)" if r.overridden else a
             for a, r in last_reviews.items()
-            if r.vote == "reject"
+            if r.vote != "accept"
         ]
         ask(
             "decide-overall",
-            "The agents agree feature by feature, but some still reject the overall plan. Accept it anyway?",
-            f"Still rejecting: {', '.join(rejecting)}",
+            "Some agents have not accepted the overall plan. Resolve their concerns or provide missing information?",
+            f"Not accepting: {', '.join(rejecting)}",
         )
         status, summary = "escalated", "No node-level disputes, but not every agent accepts the overall plan."
 
@@ -412,6 +414,7 @@ async def negotiate(
                     f"On {v.candidate_id}: {v.reason}{flag}",
                     vote=v.vote,
                     scores={**v.ratings, "score": v.score},
+                    evidence=v.evidence,
                 )
         return tally
 
@@ -431,6 +434,7 @@ async def negotiate(
                 vote=r.vote,
                 scores={**r.ratings, "score": r.score},
                 counteroffer=r.counteroffer.summary if r.counteroffer else None,
+                evidence=r.evidence,
             )
 
         # 2. Node statuses from positions.

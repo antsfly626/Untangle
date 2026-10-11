@@ -48,6 +48,7 @@ Respond with only a JSON object:
                   "weekly_hours": number or null, "budget_usd": number or null,
                   "avoid": ["..."]},
   "nodes": [{"label": "...", "type": "feature|component|constraint|risk|question",
+             "parent": "label of a broader node from this response, or root",
              "rationale": "why the user wants it, in their words",
              "required": true or false,
              "estimate_hours": number or null, "cost_usd": number or null}]
@@ -61,6 +62,11 @@ whole is NOT a node (it's the summary). Team size, schedule, budget, and the use
 uncertainties ("not sure how long it takes") are NOT nodes. It's fine to return no nodes.
 - One node per distinct thing: merge items that mean the same (e.g. "notifications" and \
 "push notifications" are one node).
+- Group directly related nodes under a broader node when the user described a clear parent-child \
+relationship (for example, put specific collaboration tools under "Team collaboration"). Emit \
+the broader node before its children and set each child's parent to that broader node's exact \
+label. Use "root" for independent nodes or when no existing node is a genuine broader topic. \
+Parent links only organize what the user described; do not invent features to act as categories.
 - required: true only for things the user said are essential ("must", "need", "has to"). \
 Requirements like "must be free" become a constraint node with required: true.
 - estimate_hours: rough person-hours to build a solid first version. cost_usd: cash cost over the \
@@ -186,8 +192,22 @@ async def extract(text: str) -> Plan:
         constraints=constraints,
         nodes=[Node(id="root", label=summary, type="idea", status="agreed", proposed_by="user")],
     )
+    by_label: dict[str, Optional[str]] = {}
     for item in raw.get("nodes") or []:
-        _add_unique(plan, _node_from(item, _next_user_id(plan)))
+        if not isinstance(item, dict):
+            continue
+        label = str(item.get("label") or "").strip()
+        parent_label = item.get("parent")
+        parent = "root"
+        if isinstance(parent_label, str) and parent_label.strip().casefold() != "root":
+            parent = by_label.get(parent_label.strip().casefold()) or "root"
+        node = _node_from(item, _next_user_id(plan), parent)
+        if _add_unique(plan, node) and node is not None:
+            normalized = label.casefold()
+            if normalized in by_label:
+                by_label[normalized] = None
+            else:
+                by_label[normalized] = node.id
     return plan
 
 
@@ -316,6 +336,7 @@ async def update_from_user(plan: Plan, text: str) -> tuple[Plan, str, bool]:
         node = _node_from(item, _next_user_id(plan), parent)
         if _add_unique(plan, node):
             added.append(node.label)
+            ids.add(node.id)
 
     nodes = {n.id: n for n in plan.nodes}
     new_musts = []
