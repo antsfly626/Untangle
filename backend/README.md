@@ -32,6 +32,35 @@ echo $LLM_MODEL; echo $LLM_BASE_URL; echo $LLM_API_KEY
 
 and paste each after its `=` (no quotes or spaces).
 
+The app reads `backend/.env` automatically. You can instead export these variables
+in your shell; existing shell variables take precedence over values in the file.
+If your assigned lab already configures them, use that terminal without printing or
+copying the API key elsewhere. An AGNTCY lab is optional; model inference and SLIM
+messaging are configured separately.
+
+Choose one provider configuration:
+
+**Groq**
+
+```dotenv
+LLM_API_KEY=your-groq-key
+LLM_MODEL=openai/gpt-oss-20b
+LLM_BASE_URL=https://api.groq.com/openai/v1
+```
+
+**Google Gemini**
+
+```dotenv
+LLM_API_KEY=your-google-api-key
+LLM_MODEL=gemini-3.8-flash
+LLM_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
+```
+
+Gemini's native `/v1beta` root is also recognized, and full `/v1` proxy URLs are
+preserved. Evidence review additionally requires a provider with strict structured
+outputs enabled. Evidence-only provider overrides are documented in
+[the Evidence README](evidence/README.md#evidence-specific-configuration).
+
 Check everything works (instant, no LLM calls):
 
 ```bash
@@ -62,6 +91,7 @@ uvicorn api:app --reload --port 8000
 
 | Endpoint | Purpose |
 |---|---|
+| `POST /agents/evidence/review` | Independent proposal review with research metadata |
 | `POST /sessions` `{"text": ...}` | Brain dump → plan + questions; negotiation starts once limits are known |
 | `GET /sessions/{id}` | Current session |
 | `POST /sessions/{id}/messages` `{"text": ...}` | Answers, new ideas, changes, decisions; `"go"` skips open questions |
@@ -122,6 +152,34 @@ Each agent becomes its own A2A server on SLIM; the protocol broadcasts each roun
 
 ## Files
 
+### Evidence & Risk integration
+
+The `evidence` server now runs the research-backed implementation in `evidence/`,
+through the same AGNTCY A2A executor and SLIM transport as Architect and Delivery.
+No extra Evidence service is needed for `python agent_server.py all`.
+
+It uses the existing `LLM_*` settings; the provider must support strict structured
+outputs. Optional `EVIDENCE_MODEL`, `EVIDENCE_BASE_URL`, `EVIDENCE_API_KEY`, and
+`SEMANTIC_SCHOLAR_API_KEY` overrides are described in [Evidence setup](evidence/README.md).
+Evidence votes support abstention, are not overridden by scores, and retain research
+metadata in `Plan.negotiation[].evidence`. Its score is informational and excluded
+from the Nash tie-break. Architect and Delivery keep their existing scoring rules.
+
+From the repository root with `backend/.venv` activated:
+
+```bash
+LLM_MODEL=test LLM_BASE_URL=https://example.invalid LLM_API_KEY=test \
+  python -m pytest backend/tests backend/test_rules.py -q
+python -m uvicorn api:app --app-dir backend --reload  # sessions + SSE + Evidence
+```
+
+The unified `api:app` serves the session routes and `/agents/evidence/review`.
+`backend.main:app` remains an Evidence-only development entry point. Transport selection
+applies to session negotiation;
+the negotiation CLI uses SLIM when `UNTANGLE_TRANSPORT=slim` is set.
+
+### Module map
+
 | File | What it does |
 |---|---|
 | `schemas.py` | Plan format shared with the frontend (`python schemas.py` regenerates `shared/plan.schema.json`) |
@@ -135,7 +193,8 @@ Each agent becomes its own A2A server on SLIM; the protocol broadcasts each roun
 | `test_rules.py` | Checks for the code-only rules |
 | `baseline.py` | Single-LLM planner with no safeguards, for comparison |
 | `compare.py` | Eval: agents vs baseline on 3 ideas → `shared/baseline_comparison.json` (`--repeats N`) |
-| `api.py` | FastAPI app for the frontend |
+| `api.py` | FastAPI app for sessions, SSE, and Evidence review |
+| `evidence/` | Research, structured votes, HTTP API and adapter to the AGNTCY-served Evidence agent |
 
 ## Troubleshooting
 
@@ -143,5 +202,6 @@ Each agent becomes its own A2A server on SLIM; the protocol broadcasts each roun
   `source backend/.venv/bin/activate`, or call `.venv/bin/python` directly.
 - **`Missing LLM_MODEL ... in backend/.env`**: create `backend/.env` as above.
 - **Votes show `unavailable (no reply over SLIM)`**: check `agent_server.py all` is running
-  and SLIM is up (`docker ps` shows `lungo-slim`). Unavailable agents count as reject by design.
+  and SLIM is up (`docker ps` shows `lungo-slim`). Unavailable Evidence votes abstain;
+  other unavailable agents reject. Neither counts as consent.
 - **`Cannot connect to the Docker daemon`**: start Colima / Docker first.
