@@ -1,10 +1,14 @@
+import ConceptMap from "@/components/ConceptMap";
+
 export default function Home() {
   return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
-      <h1 className="text-4xl font-semibold tracking-tight">Untangle</h1>
-      <p className="max-w-lg text-lg">
-        Turn scattered thoughts into actionable project plans.
-      </p>
+    <main className="min-h-screen p-8">
+      <h1 className="mb-6 text-3xl font-bold">
+        Untangle
+      </h1>
+
+      <ConceptMap />
     </main>
   );
 }
+
