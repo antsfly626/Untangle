@@ -1,0 +1,811 @@
+{
+  "session_id": "demo-001",
+  "idea": "An app where campus event organizers post leftover food and students get notified to come grab it. Two of us, part-time (~12h/week each), 8 weeks, $300 budget. Must be free for students. Want a live map and push notifications.",
+  "constraints": {
+    "team_size": 2,
+    "timeline_weeks": 8.0,
+    "hours_per_week": 12.0,
+    "budget_usd": 300.0,
+    "must_have": [
+      "post leftover food",
+      "student notifications"
+    ],
+    "avoid": [
+      "charging students"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "root",
+      "label": "Campus leftover-food sharing app",
+      "type": "idea",
+      "status": "agreed",
+      "parent": null,
+      "proposed_by": "user",
+      "rationale": "User's core idea",
+      "supported_by": [
+        "architect",
+        "delivery",
+        "evidence"
+      ],
+      "objections": [],
+      "evidence": [],
+      "estimate_hours": null,
+      "cost_usd": null
+    },
+    {
+      "id": "f-post",
+      "label": "Organizers post leftover food (photo, location, pickup window)",
+      "type": "feature",
+      "status": "agreed",
+      "parent": "root",
+      "proposed_by": "user",
+      "rationale": "Must-have: the supply side of the app",
+      "supported_by": [
+        "architect",
+        "delivery",
+        "evidence"
+      ],
+      "objections": [],
+      "evidence": [],
+      "estimate_hours": 15.0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "f-feed",
+      "label": "Student feed of available food",
+      "type": "feature",
+      "status": "agreed",
+      "parent": "root",
+      "proposed_by": "architect",
+      "rationale": "Students need one place to see what's available now",
+      "supported_by": [
+        "architect",
+        "delivery",
+        "evidence"
+      ],
+      "objections": [],
+      "evidence": [],
+      "estimate_hours": 12.0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "f-push",
+      "label": "Push notifications for new food posts",
+      "type": "feature",
+      "status": "agreed",
+      "parent": "root",
+      "proposed_by": "user",
+      "rationale": "Must-have: food goes fast, so students need to know immediately",
+      "supported_by": [
+        "architect",
+        "delivery",
+        "evidence"
+      ],
+      "objections": [],
+      "evidence": [],
+      "estimate_hours": 15.0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "f-sms",
+      "label": "SMS alerts for students without the app",
+      "type": "feature",
+      "status": "deferred",
+      "parent": "f-push",
+      "proposed_by": "architect",
+      "rationale": "Reaches students who won't install an app",
+      "supported_by": [],
+      "objections": [
+        {
+          "agent": "architect",
+          "reason": "SMS adds cost and consent/delivery complexity; validate student uptake with app push first.",
+          "severity": "concern"
+        },
+        {
+          "agent": "delivery",
+          "reason": "Adds $250 in cost and is unnecessary for an initial app-based launch.",
+          "severity": "concern"
+        },
+        {
+          "agent": "evidence",
+          "reason": "The $250 cost consumes most of the budget, and SMS consent and number handling add privacy work.",
+          "severity": "concern"
+        }
+      ],
+      "evidence": [],
+      "estimate_hours": 6.0,
+      "cost_usd": 250.0
+    },
+    {
+      "id": "f-map",
+      "label": "Live map of food locations",
+      "type": "feature",
+      "status": "deferred",
+      "parent": "root",
+      "proposed_by": "user",
+      "rationale": "User asked for it; makes finding food in unfamiliar buildings easy",
+      "supported_by": [],
+      "objections": [
+        {
+          "agent": "architect",
+          "reason": "A custom live map is costly for an eight-week launch; retain useful location directions through the smaller text-and-link variant.",
+          "severity": "concern"
+        },
+        {
+          "agent": "delivery",
+          "reason": "A live map adds substantial effort beyond the text location students need to find food.",
+          "severity": "concern"
+        },
+        {
+          "agent": "evidence",
+          "reason": "A live map is not needed to test the core value and adds substantial build time.",
+          "severity": "concern"
+        }
+      ],
+      "evidence": [],
+      "estimate_hours": 30.0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "r1-delivery-1",
+      "label": "Building and room shown as text, with a link to campus maps",
+      "type": "feature",
+      "status": "agreed",
+      "parent": "f-map",
+      "proposed_by": "delivery",
+      "rationale": "Smaller variant of the live map: most of the value for 2h",
+      "supported_by": [
+        "architect",
+        "delivery",
+        "evidence"
+      ],
+      "objections": [],
+      "evidence": [],
+      "estimate_hours": 2.0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "f-claim",
+      "label": "Claim / reserve a portion",
+      "type": "feature",
+      "status": "agreed",
+      "parent": "root",
+      "proposed_by": "architect",
+      "rationale": "Prevents wasted trips when food is gone",
+      "supported_by": [
+        "architect"
+      ],
+      "objections": [
+        {
+          "agent": "delivery",
+          "reason": "Reservation state and handling add complexity; validate demand before building it.",
+          "severity": "concern"
+        },
+        {
+          "agent": "evidence",
+          "reason": "Useful later for reducing wasted trips, but availability can be tested with a simple organizer update first.",
+          "severity": "concern"
+        }
+      ],
+      "evidence": [],
+      "estimate_hours": 14.0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "f-chat",
+      "label": "In-app chat between organizers and students",
+      "type": "feature",
+      "status": "rejected",
+      "parent": "root",
+      "proposed_by": "architect",
+      "rationale": "Questions like 'is there any vegan food left?'",
+      "supported_by": [],
+      "objections": [
+        {
+          "agent": "architect",
+          "reason": "Chat introduces moderation and privacy work without being necessary for the core pickup flow.",
+          "severity": "concern"
+        },
+        {
+          "agent": "delivery",
+          "reason": "Messaging is not needed to launch and expands moderation and implementation work.",
+          "severity": "concern"
+        },
+        {
+          "agent": "evidence",
+          "reason": "Not essential to the pilot and increases moderation and privacy burden.",
+          "severity": "concern"
+        }
+      ],
+      "evidence": [],
+      "estimate_hours": 20.0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "f-auth",
+      "label": "Campus email sign-in",
+      "type": "feature",
+      "status": "agreed",
+      "parent": "root",
+      "proposed_by": "evidence",
+      "rationale": "Keeps the app to the campus community and deters abuse",
+      "supported_by": [
+        "architect",
+        "delivery",
+        "evidence"
+      ],
+      "objections": [],
+      "evidence": [],
+      "estimate_hours": 10.0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "c-free",
+      "label": "Free for students",
+      "type": "constraint",
+      "status": "agreed",
+      "parent": "root",
+      "proposed_by": "user",
+      "rationale": "User requirement",
+      "supported_by": [
+        "architect",
+        "delivery",
+        "evidence"
+      ],
+      "objections": [],
+      "evidence": [],
+      "estimate_hours": null,
+      "cost_usd": null
+    },
+    {
+      "id": "c-allergen",
+      "label": "Allergen and dietary labels required on every post",
+      "type": "constraint",
+      "status": "agreed",
+      "parent": "f-post",
+      "proposed_by": "evidence",
+      "rationale": "Students with allergies must be able to decide safely",
+      "supported_by": [
+        "architect",
+        "delivery",
+        "evidence"
+      ],
+      "objections": [],
+      "evidence": [],
+      "estimate_hours": 6.0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "r-safety",
+      "label": "Food-safety liability (time since prepared, handling)",
+      "type": "risk",
+      "status": "agreed",
+      "parent": "f-post",
+      "proposed_by": "compliance",
+      "rationale": "Posting checklist plus a pickup-window limit and disclaimer",
+      "supported_by": [
+        "architect",
+        "delivery",
+        "evidence"
+      ],
+      "objections": [],
+      "evidence": [],
+      "estimate_hours": 8.0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "r-trust",
+      "label": "Students may not trust food from strangers",
+      "type": "risk",
+      "status": "agreed",
+      "parent": "root",
+      "proposed_by": "evidence",
+      "rationale": "Show the posting organization's name and verified campus email",
+      "supported_by": [
+        "architect",
+        "delivery",
+        "evidence"
+      ],
+      "objections": [],
+      "evidence": [
+        {
+          "title": "Consumer food waste behaviour in universities: Sharing as a means of prevention",
+          "url": "https://doi.org/10.1002/cb.1581",
+          "year": 2016,
+          "source": "semantic_scholar",
+          "stance": "challenges",
+          "summary": "A campus food-sharing intervention ran into barriers: trust, people's visceral relationship with food, and norms about acceptable food sources.",
+          "abstract_only": true
+        }
+      ],
+      "estimate_hours": null,
+      "cost_usd": null
+    },
+    {
+      "id": "c-hosting",
+      "label": "Hosting and domain",
+      "type": "component",
+      "status": "agreed",
+      "parent": "root",
+      "proposed_by": "delivery",
+      "rationale": "~$25/month for 2 months plus a $10 domain",
+      "supported_by": [
+        "architect",
+        "delivery",
+        "evidence"
+      ],
+      "objections": [],
+      "evidence": [],
+      "estimate_hours": 2.0,
+      "cost_usd": 60.0
+    },
+    {
+      "id": "q-orgs",
+      "label": "Which organizations will post first?",
+      "type": "question",
+      "status": "proposed",
+      "parent": "root",
+      "proposed_by": "evidence",
+      "rationale": "",
+      "supported_by": [],
+      "objections": [],
+      "evidence": [],
+      "estimate_hours": null,
+      "cost_usd": null
+    },
+    {
+      "id": "r1-architect-1",
+      "label": "Food availability lifecycle: organizers can mark posts picked up or unavailable, and posts automatically expire at the pickup-window end",
+      "type": "feature",
+      "status": "agreed",
+      "parent": "root",
+      "proposed_by": "architect",
+      "rationale": "Keeps the feed, claims, and alerts from sending students to food that is no longer available.",
+      "supported_by": [],
+      "objections": [],
+      "evidence": [],
+      "estimate_hours": 8.0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "r1-architect-2",
+      "label": "Student report flow for inaccurate or concerning food posts, with a basic organizer/admin review queue",
+      "type": "feature",
+      "status": "agreed",
+      "parent": "root",
+      "proposed_by": "architect",
+      "rationale": "Provides a lightweight trust and safety response path for a campus pilot.",
+      "supported_by": [],
+      "objections": [],
+      "evidence": [],
+      "estimate_hours": 6.0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "r1-architect-3",
+      "label": "Managed backend foundation for posts, claims, campus-email auth, and web-push delivery",
+      "type": "component",
+      "status": "agreed",
+      "parent": "root",
+      "proposed_by": "architect",
+      "rationale": "Use a managed database/auth service and a responsive web app to support the core flow without custom infrastructure.",
+      "supported_by": [],
+      "objections": [],
+      "evidence": [],
+      "estimate_hours": 12.0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "r1-architect-4",
+      "label": "End-to-end testing across posting, claiming, expiry, and notification flows",
+      "type": "component",
+      "status": "agreed",
+      "parent": "root",
+      "proposed_by": "architect",
+      "rationale": "Validate the time-sensitive pickup journey and catch regressions before a campus pilot.",
+      "supported_by": [],
+      "objections": [],
+      "evidence": [],
+      "estimate_hours": 8.0,
+      "cost_usd": 0.0
+    }
+  ],
+  "questions": [
+    {
+      "id": "confirm-f-map",
+      "asked_by": "protocol",
+      "question": "The agents recommend deferring 'Live map of food locations', which you asked for. OK, or keep it?",
+      "why": "architect: A custom live map is costly for an eight-week launch; retain useful location directions through the smaller text-and-link variant.; delivery: A live map adds substantial effort beyond the text location students need to find food.; evidence: A live map is not needed to test the core value and adds substantial build time.",
+      "priority": 5,
+      "answer": null
+    }
+  ],
+  "architecture": [
+    {
+      "id": "a-web",
+      "name": "Mobile web app (PWA)",
+      "tech": "Next.js",
+      "purpose": "Posting, feed, notifications opt-in",
+      "status": "agreed",
+      "depends_on": [
+        "a-api"
+      ]
+    },
+    {
+      "id": "a-api",
+      "name": "Backend",
+      "tech": "FastAPI",
+      "purpose": "Posts, auth, notification fan-out",
+      "status": "agreed",
+      "depends_on": [
+        "a-db",
+        "a-push"
+      ]
+    },
+    {
+      "id": "a-db",
+      "name": "Database",
+      "tech": "Postgres (free tier)",
+      "purpose": "Posts, users, organizations",
+      "status": "agreed",
+      "depends_on": []
+    },
+    {
+      "id": "a-push",
+      "name": "Push notifications",
+      "tech": "Web Push",
+      "purpose": "Alert students to new food",
+      "status": "agreed",
+      "depends_on": []
+    },
+    {
+      "id": "a-maps",
+      "name": "Map",
+      "tech": "Leaflet + OpenStreetMap",
+      "purpose": "Live map of food locations",
+      "status": "disputed",
+      "depends_on": [
+        "a-web"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "Campus email sign-in",
+      "node_id": "f-auth",
+      "estimate_hours": 10.0,
+      "depends_on": []
+    },
+    {
+      "id": "t2",
+      "title": "Post form with allergen labels and safety checklist",
+      "node_id": "f-post",
+      "estimate_hours": 21.0,
+      "depends_on": [
+        "t1"
+      ]
+    },
+    {
+      "id": "t3",
+      "title": "Student feed",
+      "node_id": "f-feed",
+      "estimate_hours": 12.0,
+      "depends_on": [
+        "t2"
+      ]
+    },
+    {
+      "id": "t4",
+      "title": "Web push notifications",
+      "node_id": "f-push",
+      "estimate_hours": 15.0,
+      "depends_on": [
+        "t2"
+      ]
+    }
+  ],
+  "agents": [
+    {
+      "id": "architect",
+      "name": "Architect",
+      "capabilities": [
+        "system_design",
+        "tech_selection"
+      ],
+      "reason": "Core decision agent",
+      "score": 1.0,
+      "status": "active",
+      "replaced_by": null
+    },
+    {
+      "id": "delivery",
+      "name": "Delivery",
+      "capabilities": [
+        "estimation",
+        "scoping",
+        "budgeting"
+      ],
+      "reason": "Core decision agent",
+      "score": 1.0,
+      "status": "active",
+      "replaced_by": null
+    },
+    {
+      "id": "evidence",
+      "name": "Evidence & Risk",
+      "capabilities": [
+        "risk_review",
+        "accessibility",
+        "evidence_review"
+      ],
+      "reason": "Core decision agent",
+      "score": 1.0,
+      "status": "active",
+      "replaced_by": null
+    },
+    {
+      "id": "compliance",
+      "name": "Food Safety & Liability Specialist",
+      "capabilities": [
+        "regulatory_review",
+        "food_safety"
+      ],
+      "reason": "Idea involves distributing food to the public; highest-ranked regulatory_review specialist",
+      "score": 0.88,
+      "status": "active",
+      "replaced_by": null
+    },
+    {
+      "id": "scout-s2",
+      "name": "Research Scout (Semantic Scholar)",
+      "capabilities": [
+        "paper_search"
+      ],
+      "reason": "Idea makes behavioral claims about students; highest-ranked paper_search provider",
+      "score": 0.92,
+      "status": "replaced",
+      "replaced_by": "scout-oa"
+    },
+    {
+      "id": "scout-oa",
+      "name": "Research Scout (OpenAlex)",
+      "capabilities": [
+        "paper_search"
+      ],
+      "reason": "Next-best available paper_search provider after Semantic Scholar failed",
+      "score": 0.85,
+      "status": "active",
+      "replaced_by": null
+    }
+  ],
+  "negotiation": [
+    {
+      "round": 1,
+      "phase": "critique",
+      "agent": "architect",
+      "message": "I support a launch centered on verified posts, fast alerts, and accurate availability, with building-and-room directions instead of a custom map. Defer SMS and the full map, and use that capacity to build the backend, food-status lifecycle, reporting, and end-to-end testing; the resulting plan is about 118 hours and $60.",
+      "target_node_ids": [
+        "f-sms",
+        "f-map",
+        "f-chat"
+      ],
+      "vote": "accept",
+      "scores": {
+        "technical_quality": 0.78,
+        "distinctiveness": 0.78,
+        "score": 0.835
+      },
+      "counteroffer": "Keep the core food-sharing and notification flow, replace the live map with text directions and a campus-map link, and invest spare capacity in reliable status handling, reporting, backend foundations, and testing."
+    },
+    {
+      "round": 1,
+      "phase": "critique",
+      "agent": "delivery",
+      "message": "I recommend a lean launch: keep posting, the feed, opt-in push notifications, campus sign-in, safety details, and text directions, while deferring SMS, the live map, claims, and chat. That is about 70 hours and $60, within the stated capacity and budget. [Vote overridden to reject: score below this agent's minimum.]",
+      "target_node_ids": [
+        "f-sms",
+        "f-map",
+        "f-claim",
+        "f-chat"
+      ],
+      "vote": "reject",
+      "scores": {
+        "low_risk": 0.7,
+        "score": 0.493
+      },
+      "counteroffer": "Ship the core campus food-sharing flow with text directions; defer costly and complex extras until the pilot validates demand."
+    },
+    {
+      "round": 1,
+      "phase": "critique",
+      "agent": "evidence",
+      "message": "I support a focused pilot: keep posting, feed, opt-in push, campus sign-in, and text directions, while deferring SMS, the live map, claiming, and chat. Please replace mandatory allergen labels—which could imply certainty when ingredients are unknown—with explicit known/unknown disclosures, and validate campus food-handling rules and initial organizer participation before launch.",
+      "target_node_ids": [
+        "f-sms",
+        "f-map",
+        "f-claim",
+        "f-chat"
+      ],
+      "vote": "accept",
+      "scores": {
+        "user_value": 0.78,
+        "safety": 0.72,
+        "score": 0.85
+      },
+      "counteroffer": "Keep the must-have pilot and text directions, defer nonessential features, and replace potentially misleading allergen labels with transparent disclosures plus a campus-policy check."
+    },
+    {
+      "round": 1,
+      "phase": "counteroffer",
+      "agent": "architect",
+      "message": "r1-architect: Keep the core food-sharing and notification flow, replace the live map with text directions and a campus-map link, and invest spare capacity in reliable status handling, reporting, backend foundations, and testing.",
+      "target_node_ids": [],
+      "vote": null,
+      "scores": {},
+      "counteroffer": "Keep the core food-sharing and notification flow, replace the live map with text directions and a campus-map link, and invest spare capacity in reliable status handling, reporting, backend foundations, and testing."
+    },
+    {
+      "round": 1,
+      "phase": "counteroffer",
+      "agent": "delivery",
+      "message": "r1-delivery: Ship the core campus food-sharing flow with text directions; defer costly and complex extras until the pilot validates demand.",
+      "target_node_ids": [],
+      "vote": null,
+      "scores": {},
+      "counteroffer": "Ship the core campus food-sharing flow with text directions; defer costly and complex extras until the pilot validates demand."
+    },
+    {
+      "round": 1,
+      "phase": "counteroffer",
+      "agent": "evidence",
+      "message": "r1-evidence: Keep the must-have pilot and text directions, defer nonessential features, and replace potentially misleading allergen labels with transparent disclosures plus a campus-policy check.",
+      "target_node_ids": [],
+      "vote": null,
+      "scores": {},
+      "counteroffer": "Keep the must-have pilot and text directions, defer nonessential features, and replace potentially misleading allergen labels with transparent disclosures plus a campus-policy check."
+    },
+    {
+      "round": 1,
+      "phase": "vote",
+      "agent": "architect",
+      "message": "On r1-architect: Accept: it preserves the distinctive campus food-sharing and notification flow, replaces the expensive live map with useful text directions, and spends spare capacity on availability lifecycle, reporting, managed backend foundations, and end-to-end tests. Those additions make a pilot more reliable without exceeding the stated capacity or budget.",
+      "target_node_ids": [],
+      "vote": "accept",
+      "scores": {
+        "technical_quality": 0.82,
+        "distinctiveness": 0.82,
+        "score": 0.865
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 1,
+      "phase": "vote",
+      "agent": "architect",
+      "message": "On r1-delivery: Reject: the plan preserves the core idea but uses only 52% of capacity and defers claims, leaving students exposed to wasted trips when food is gone. It also adds no explicit backend foundation, availability lifecycle, or end-to-end testing to make the time-sensitive flow reliable.",
+      "target_node_ids": [],
+      "vote": "reject",
+      "scores": {
+        "technical_quality": 0.48,
+        "distinctiveness": 0.66,
+        "score": 0.59
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 1,
+      "phase": "vote",
+      "agent": "architect",
+      "message": "On r1-evidence: Accept: it keeps the core food-sharing and notification experience, improves the safety of allergen information by avoiding false assurances, and adds campus-policy validation before a pilot. Its main gaps are explicit availability lifecycle and testing work, but it remains a viable plan within the capacity and budget.",
+      "target_node_ids": [],
+      "vote": "accept",
+      "scores": {
+        "technical_quality": 0.58,
+        "distinctiveness": 0.72,
+        "score": 0.653
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 1,
+      "phase": "vote",
+      "agent": "delivery",
+      "message": "On r1-architect: Accept: lifecycle handling, reporting, backend foundations, and end-to-end tests reduce pilot risks. The 118-hour plan leaves limited capacity headroom, and the backend and web-push work deserve careful execution.",
+      "target_node_ids": [],
+      "vote": "accept",
+      "scores": {
+        "low_risk": 0.58,
+        "score": 0.796
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 1,
+      "phase": "vote",
+      "agent": "delivery",
+      "message": "On r1-delivery: Accept: this is a lean, feasible core pilot with text directions and costly extras deferred. Without explicit post-expiry or reporting work, stale listings and trust issues remain risks, but the smaller scope is practical.",
+      "target_node_ids": [],
+      "vote": "accept",
+      "scores": {
+        "low_risk": 0.68,
+        "score": 0.904
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 1,
+      "phase": "vote",
+      "agent": "delivery",
+      "message": "On r1-evidence: Accept: transparent ingredient and allergen disclosures avoid implying food is safe when information is unknown, and checking campus rules and organizer participation addresses key launch uncertainties. The core flow stays within the team's capacity.",
+      "target_node_ids": [],
+      "vote": "accept",
+      "scores": {
+        "low_risk": 0.8,
+        "score": 0.94
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 1,
+      "phase": "vote",
+      "agent": "evidence",
+      "message": "On r1-architect: Accept: text directions preserve most map value, and expiry/status handling, reporting, and end-to-end tests strengthen the time-sensitive flow. The plan is within capacity, though it should also validate campus food rules and avoid suggesting required allergen labels establish safety.",
+      "target_node_ids": [],
+      "vote": "accept",
+      "scores": {
+        "user_value": 0.8,
+        "safety": 0.7,
+        "score": 0.85
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 1,
+      "phase": "vote",
+      "agent": "evidence",
+      "message": "On r1-delivery: Reject: this is a buildable narrow scope, but it leaves organizer participation unvalidated and lacks explicit expiry or status handling, so students may be notified about food that is no longer available. Those gaps weaken the core time-sensitive value of the pilot.",
+      "target_node_ids": [],
+      "vote": "reject",
+      "scores": {
+        "user_value": 0.62,
+        "safety": 0.55,
+        "score": 0.751
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 1,
+      "phase": "vote",
+      "agent": "evidence",
+      "message": "On r1-evidence: Accept: it preserves the must-haves and text directions while replacing potentially overconfident allergen labels with clear disclosures for unknown ingredients and allergens. Checking campus rules and starting with willing organizers is a concrete safeguard for an unvalidated pilot.",
+      "target_node_ids": [],
+      "vote": "accept",
+      "scores": {
+        "user_value": 0.8,
+        "safety": 0.88,
+        "score": 0.904
+      },
+      "counteroffer": null
+    },
+    {
+      "round": 1,
+      "phase": "decision",
+      "agent": "protocol",
+      "message": "r1-architect was accepted by all 3 agents and passes the hard constraints. Tie broken by Nash bargaining product (balance of every agent's margin above its minimum): r1-architect 0.0147, r1-evidence 0.0069.",
+      "target_node_ids": [],
+      "vote": null,
+      "scores": {},
+      "counteroffer": null
+    }
+  ],
+  "events": [],
+  "outcome": {
+    "status": "consensus",
+    "summary": "All agents accepted the plan after 1 round(s).",
+    "rounds_used": 1,
+    "open_disputes": [],
+    "hard_constraint_violations": []
+  }
+}

@@ -1,17 +1,18 @@
 {
   "session_id": "demo-001",
-  "idea": "An AI study assistant for university students: organize notes, generate quizzes, maybe live collaboration. Two developers, accessible, low budget.",
+  "idea": "An app where campus event organizers post leftover food and students get notified to come grab it. Two of us, part-time (~12h/week each), 8 weeks, $300 budget. Must be free for students. Want a live map and push notifications.",
   "constraints": {
-    "developers": 2,
-    "deadline_hours": 24,
-    "budget_usd": 0,
-    "must_have": ["quiz generation", "keyboard accessible"],
-    "avoid": ["paid APIs"]
+    "team_size": 2,
+    "timeline_weeks": 8,
+    "hours_per_week": 12,
+    "budget_usd": 300,
+    "must_have": ["post leftover food", "student notifications"],
+    "avoid": ["charging students"]
   },
   "nodes": [
     {
       "id": "root",
-      "label": "AI study assistant",
+      "label": "Campus leftover-food sharing app",
       "type": "idea",
       "status": "agreed",
       "parent": null,
@@ -20,113 +21,197 @@
       "supported_by": ["architect", "delivery", "evidence"]
     },
     {
-      "id": "f-notes",
-      "label": "Note upload & organization",
+      "id": "f-post",
+      "label": "Organizers post leftover food (photo, location, pickup window)",
       "type": "feature",
       "status": "agreed",
       "parent": "root",
-      "proposed_by": "architect",
-      "rationale": "Quizzes need source material",
+      "proposed_by": "user",
+      "rationale": "Must-have: the supply side of the app",
       "supported_by": ["architect", "delivery", "evidence"],
-      "estimate_hours": 4
+      "estimate_hours": 15,
+      "cost_usd": 0
     },
     {
-      "id": "f-quiz",
-      "label": "Quiz generation",
+      "id": "f-feed",
+      "label": "Student feed of available food",
       "type": "feature",
       "status": "agreed",
       "parent": "root",
       "proposed_by": "architect",
-      "rationale": "Must-have from the user",
+      "rationale": "Students need one place to see what's available now",
       "supported_by": ["architect", "delivery", "evidence"],
-      "evidence": [
-        {
-          "title": "The Power of Testing Memory: Basic Research and Implications for Educational Practice",
-          "url": "https://doi.org/10.1111/j.1745-6916.2006.00012.x",
-          "year": 2006,
-          "source": "openalex",
-          "stance": "supports",
-          "summary": "Retrieval practice (self-testing) improves long-term retention more than re-reading.",
-          "abstract_only": true
-        }
+      "estimate_hours": 12,
+      "cost_usd": 0
+    },
+    {
+      "id": "f-push",
+      "label": "Push notifications for new food posts",
+      "type": "feature",
+      "status": "agreed",
+      "parent": "root",
+      "proposed_by": "user",
+      "rationale": "Must-have: food goes fast, so students need to know immediately",
+      "supported_by": ["architect", "delivery", "evidence"],
+      "estimate_hours": 15,
+      "cost_usd": 0
+    },
+    {
+      "id": "f-sms",
+      "label": "SMS alerts for students without the app",
+      "type": "feature",
+      "status": "rejected",
+      "parent": "f-push",
+      "proposed_by": "architect",
+      "rationale": "Reaches students who won't install an app",
+      "supported_by": ["architect"],
+      "objections": [
+        { "agent": "delivery", "reason": "~$250 in SMS fees alone breaks the $300 budget", "severity": "blocking" },
+        { "agent": "evidence", "reason": "Collecting phone numbers adds privacy obligations", "severity": "concern" }
       ],
-      "estimate_hours": 6
+      "estimate_hours": 6,
+      "cost_usd": 250
     },
     {
-      "id": "f-collab",
-      "label": "Live collaboration",
+      "id": "f-map",
+      "label": "Live map of food locations",
+      "type": "feature",
+      "status": "disputed",
+      "parent": "root",
+      "proposed_by": "user",
+      "rationale": "User asked for it; makes finding food in unfamiliar buildings easy",
+      "supported_by": ["architect"],
+      "objections": [
+        { "agent": "delivery", "reason": "30h is over a fifth of total capacity for something a building name already solves", "severity": "blocking" },
+        { "agent": "evidence", "reason": "Unvalidated that students need a map rather than a building and room", "severity": "concern" }
+      ],
+      "estimate_hours": 30,
+      "cost_usd": 0
+    },
+    {
+      "id": "r1-delivery-1",
+      "label": "Building and room shown as text, with a link to campus maps",
+      "type": "feature",
+      "status": "proposed",
+      "parent": "f-map",
+      "proposed_by": "delivery",
+      "rationale": "Smaller variant of the live map: most of the value for 2h",
+      "estimate_hours": 2,
+      "cost_usd": 0
+    },
+    {
+      "id": "f-claim",
+      "label": "Claim / reserve a portion",
       "type": "feature",
       "status": "deferred",
       "parent": "root",
       "proposed_by": "architect",
-      "rationale": "Study groups are common; differentiator",
+      "rationale": "Prevents wasted trips when food is gone",
       "supported_by": ["architect"],
       "objections": [
-        { "agent": "delivery", "reason": "Realtime sync adds ~10h; exceeds 24h budget with 2 devs", "severity": "blocking" },
-        { "agent": "evidence", "reason": "No evidence yet that target students want realtime collaboration", "severity": "concern" }
+        { "agent": "delivery", "reason": "Reservation state and no-shows add 14h of edge cases", "severity": "concern" },
+        { "agent": "evidence", "reason": "Organizers may not want to manage reservations", "severity": "concern" }
       ],
-      "estimate_hours": 10
+      "estimate_hours": 14,
+      "cost_usd": 0
     },
     {
-      "id": "f-gamify",
-      "label": "Leaderboards & streaks",
+      "id": "f-chat",
+      "label": "In-app chat between organizers and students",
       "type": "feature",
-      "status": "disputed",
+      "status": "deferred",
       "parent": "root",
       "proposed_by": "architect",
-      "rationale": "Motivation and retention",
-      "supported_by": ["architect"],
+      "rationale": "Questions like 'is there any vegan food left?'",
       "objections": [
-        { "agent": "evidence", "reason": "Public leaderboards can reduce motivation for low performers", "severity": "concern" }
+        { "agent": "delivery", "reason": "20h and needs moderation", "severity": "blocking" },
+        { "agent": "evidence", "reason": "Moderation and harassment risk", "severity": "concern" }
       ],
-      "evidence": [
-        {
-          "title": "Does Gamification Work? A Literature Review of Empirical Studies on Gamification",
-          "url": "https://doi.org/10.1109/HICSS.2014.377",
-          "year": 2014,
-          "source": "semantic_scholar",
-          "stance": "inconclusive",
-          "summary": "Effects are mostly positive but depend heavily on context and users.",
-          "abstract_only": true
-        }
-      ],
-      "estimate_hours": 3
+      "estimate_hours": 20,
+      "cost_usd": 0
     },
     {
-      "id": "f-voice",
-      "label": "Voice note transcription",
+      "id": "f-auth",
+      "label": "Campus email sign-in",
       "type": "feature",
-      "status": "rejected",
+      "status": "agreed",
       "parent": "root",
-      "proposed_by": "architect",
-      "rationale": "Hands-free capture",
-      "objections": [
-        { "agent": "delivery", "reason": "Requires a paid speech API; user said avoid paid APIs", "severity": "blocking" }
-      ]
+      "proposed_by": "evidence",
+      "rationale": "Keeps the app to the campus community and deters abuse",
+      "supported_by": ["architect", "delivery", "evidence"],
+      "estimate_hours": 10,
+      "cost_usd": 0
     },
     {
-      "id": "c-a11y",
-      "label": "Keyboard navigation + screen-reader labels",
+      "id": "c-free",
+      "label": "Free for students",
       "type": "constraint",
       "status": "agreed",
       "parent": "root",
-      "proposed_by": "evidence",
-      "rationale": "Must-have from the user",
+      "proposed_by": "user",
+      "rationale": "User requirement",
       "supported_by": ["architect", "delivery", "evidence"]
     },
     {
-      "id": "r-hallucination",
-      "label": "Generated quiz answers may be wrong",
-      "type": "risk",
+      "id": "c-allergen",
+      "label": "Allergen and dietary labels required on every post",
+      "type": "constraint",
       "status": "agreed",
-      "parent": "f-quiz",
+      "parent": "f-post",
       "proposed_by": "evidence",
-      "rationale": "LLM output must cite the source note so students can verify",
-      "supported_by": ["evidence", "architect"]
+      "rationale": "Students with allergies must be able to decide safely",
+      "supported_by": ["architect", "delivery", "evidence"],
+      "estimate_hours": 6,
+      "cost_usd": 0
     },
     {
-      "id": "q-audience",
-      "label": "Which courses / subjects first?",
+      "id": "r-safety",
+      "label": "Food-safety liability (time since prepared, handling)",
+      "type": "risk",
+      "status": "agreed",
+      "parent": "f-post",
+      "proposed_by": "compliance",
+      "rationale": "Posting checklist plus a pickup-window limit and disclaimer",
+      "supported_by": ["architect", "delivery", "evidence"],
+      "estimate_hours": 8,
+      "cost_usd": 0
+    },
+    {
+      "id": "r-trust",
+      "label": "Students may not trust food from strangers",
+      "type": "risk",
+      "status": "agreed",
+      "parent": "root",
+      "proposed_by": "evidence",
+      "rationale": "Show the posting organization's name and verified campus email",
+      "supported_by": ["architect", "delivery", "evidence"],
+      "evidence": [
+        {
+          "title": "Consumer food waste behaviour in universities: Sharing as a means of prevention",
+          "url": "https://doi.org/10.1002/cb.1581",
+          "year": 2016,
+          "source": "semantic_scholar",
+          "stance": "challenges",
+          "summary": "A campus food-sharing intervention ran into barriers: trust, people's visceral relationship with food, and norms about acceptable food sources.",
+          "abstract_only": true
+        }
+      ]
+    },
+    {
+      "id": "c-hosting",
+      "label": "Hosting and domain",
+      "type": "component",
+      "status": "agreed",
+      "parent": "root",
+      "proposed_by": "delivery",
+      "rationale": "~$25/month for 2 months plus a $10 domain",
+      "supported_by": ["architect", "delivery", "evidence"],
+      "estimate_hours": 2,
+      "cost_usd": 60
+    },
+    {
+      "id": "q-orgs",
+      "label": "Which organizations will post first?",
       "type": "question",
       "status": "proposed",
       "parent": "root",
@@ -135,59 +220,70 @@
   ],
   "questions": [
     {
-      "id": "q-audience",
+      "id": "q-orgs",
       "asked_by": "evidence",
-      "question": "Which subjects should the first version support?",
-      "why": "Quiz quality varies a lot between STEM and humanities notes",
-      "priority": 4,
+      "question": "Which campus organizations would post food first?",
+      "why": "Without reliable posters there is nothing for students to find",
+      "priority": 5,
       "answer": null
     },
     {
-      "id": "q-devices",
+      "id": "q-platform",
       "asked_by": "delivery",
-      "question": "Is mobile required, or is desktop web enough for the MVP?",
-      "why": "Mobile layout roughly doubles frontend effort",
+      "question": "Is a mobile-friendly web app OK, or do you need native iOS/Android apps?",
+      "why": "Native apps roughly double the frontend work and add app-store review time",
+      "priority": 4,
+      "answer": "Mobile web is fine to start"
+    },
+    {
+      "id": "decide-f-map",
+      "asked_by": "protocol",
+      "question": "The agents disagree on 'Live map of food locations'. Build it now, defer it, or drop it?",
+      "why": "Supported by architect. Objections: delivery: 30h is over a fifth of total capacity; evidence: unvalidated need",
       "priority": 5,
-      "answer": "Desktop web is fine"
+      "answer": null
     }
   ],
   "architecture": [
-    { "id": "a-web", "name": "Web app", "tech": "Next.js", "purpose": "Note upload, quizzes, accessible UI", "status": "agreed", "depends_on": ["a-api"] },
-    { "id": "a-api", "name": "Backend", "tech": "FastAPI (modular monolith)", "purpose": "Notes, quiz generation, auth", "status": "agreed", "depends_on": ["a-db", "a-llm"] },
-    { "id": "a-db", "name": "Database", "tech": "SQLite", "purpose": "Notes and quiz history", "status": "agreed", "depends_on": [] },
-    { "id": "a-llm", "name": "LLM provider", "tech": "LiteLLM proxy", "purpose": "Quiz generation", "status": "agreed", "depends_on": [] },
-    { "id": "a-realtime", "name": "Realtime sync", "tech": "WebSockets", "purpose": "Live collaboration", "status": "deferred", "depends_on": ["a-api"] }
+    { "id": "a-web", "name": "Mobile web app (PWA)", "tech": "Next.js", "purpose": "Posting, feed, notifications opt-in", "status": "agreed", "depends_on": ["a-api"] },
+    { "id": "a-api", "name": "Backend", "tech": "FastAPI", "purpose": "Posts, auth, notification fan-out", "status": "agreed", "depends_on": ["a-db", "a-push"] },
+    { "id": "a-db", "name": "Database", "tech": "Postgres (free tier)", "purpose": "Posts, users, organizations", "status": "agreed", "depends_on": [] },
+    { "id": "a-push", "name": "Push notifications", "tech": "Web Push", "purpose": "Alert students to new food", "status": "agreed", "depends_on": [] },
+    { "id": "a-maps", "name": "Map", "tech": "Leaflet + OpenStreetMap", "purpose": "Live map of food locations", "status": "disputed", "depends_on": ["a-web"] }
   ],
   "tasks": [
-    { "id": "t1", "title": "Note upload endpoint + storage", "node_id": "f-notes", "estimate_hours": 4, "depends_on": [] },
-    { "id": "t2", "title": "Quiz generation with source citations", "node_id": "f-quiz", "estimate_hours": 6, "depends_on": ["t1"] },
-    { "id": "t3", "title": "Keyboard + screen-reader pass", "node_id": "c-a11y", "estimate_hours": 2, "depends_on": ["t2"] }
+    { "id": "t1", "title": "Campus email sign-in", "node_id": "f-auth", "estimate_hours": 10, "depends_on": [] },
+    { "id": "t2", "title": "Post form with allergen labels and safety checklist", "node_id": "f-post", "estimate_hours": 21, "depends_on": ["t1"] },
+    { "id": "t3", "title": "Student feed", "node_id": "f-feed", "estimate_hours": 12, "depends_on": ["t2"] },
+    { "id": "t4", "title": "Web push notifications", "node_id": "f-push", "estimate_hours": 15, "depends_on": ["t2"] }
   ],
   "agents": [
     { "id": "architect", "name": "Architect", "capabilities": ["system_design", "tech_selection"], "reason": "Core decision agent", "score": 1.0, "status": "active" },
-    { "id": "delivery", "name": "Delivery", "capabilities": ["estimation", "scoping"], "reason": "Core decision agent", "score": 1.0, "status": "active" },
+    { "id": "delivery", "name": "Delivery", "capabilities": ["estimation", "scoping", "budgeting"], "reason": "Core decision agent", "score": 1.0, "status": "active" },
     { "id": "evidence", "name": "Evidence & Risk", "capabilities": ["risk_review", "accessibility", "evidence_review"], "reason": "Core decision agent", "score": 1.0, "status": "active" },
-    { "id": "scout-s2", "name": "Research Scout (Semantic Scholar)", "capabilities": ["paper_search"], "reason": "Idea makes learning-science claims; highest-ranked paper_search provider", "score": 0.92, "status": "replaced", "replaced_by": "scout-oa" },
+    { "id": "compliance", "name": "Food Safety & Liability Specialist", "capabilities": ["regulatory_review", "food_safety"], "reason": "Idea involves distributing food to the public; highest-ranked regulatory_review specialist", "score": 0.88, "status": "active" },
+    { "id": "scout-s2", "name": "Research Scout (Semantic Scholar)", "capabilities": ["paper_search"], "reason": "Idea makes behavioral claims about students; highest-ranked paper_search provider", "score": 0.92, "status": "replaced", "replaced_by": "scout-oa" },
     { "id": "scout-oa", "name": "Research Scout (OpenAlex)", "capabilities": ["paper_search"], "reason": "Next-best available paper_search provider after Semantic Scholar failed", "score": 0.85, "status": "active" }
   ],
   "negotiation": [
-    { "round": 1, "phase": "propose", "agent": "architect", "message": "Ship notes, quizzes, live collaboration and leaderboards.", "target_node_ids": ["f-notes", "f-quiz", "f-collab", "f-gamify"], "scores": { "technical_quality": 0.8 } },
-    { "round": 1, "phase": "critique", "agent": "delivery", "message": "Total estimate 23h of 2 devs x 24h, but realtime sync is the riskiest piece. Reject collaboration.", "target_node_ids": ["f-collab"], "vote": "reject", "scores": { "feasibility": 0.35 } },
-    { "round": 1, "phase": "critique", "agent": "evidence", "message": "Quizzes are well supported by retrieval-practice research. Collaboration demand is unvalidated.", "target_node_ids": ["f-quiz", "f-collab"], "scores": { "evidence_quality": 0.5 } },
-    { "round": 2, "phase": "counteroffer", "agent": "architect", "message": "Defer collaboration; keep a WebSocket-ready API boundary so it can be added later.", "target_node_ids": ["f-collab", "a-realtime"], "counteroffer": "defer f-collab" },
-    { "round": 2, "phase": "vote", "agent": "architect", "message": "Accept: architecture stays extensible.", "vote": "accept", "scores": { "technical_quality": 0.75 } },
-    { "round": 2, "phase": "vote", "agent": "delivery", "message": "Accept: fits within 13h of core work.", "vote": "accept", "scores": { "feasibility": 0.85 } },
-    { "round": 2, "phase": "vote", "agent": "evidence", "message": "Accept, but leaderboards stay disputed until evidence is clearer.", "vote": "accept", "target_node_ids": ["f-gamify"], "scores": { "evidence_quality": 0.7 } }
+    { "round": 1, "phase": "critique", "agent": "architect", "message": "The live map and SMS reach are what make this better than a group chat. Keep both.", "target_node_ids": ["f-map", "f-sms"], "vote": "accept", "scores": { "technical_quality": 0.8, "distinctiveness": 0.85, "score": 0.89 } },
+    { "round": 1, "phase": "critique", "agent": "delivery", "message": "138h planned against 134h capacity, and SMS alone costs $250 of a $300 budget. Reject.", "target_node_ids": ["f-sms", "f-map", "f-chat"], "vote": "reject", "scores": { "low_risk": 0.5, "score": 0.15 } },
+    { "round": 1, "phase": "critique", "agent": "evidence", "message": "Allergen labels and a food-safety checklist must be on every post before anything else ships.", "target_node_ids": ["f-post"], "vote": "reject", "scores": { "user_value": 0.7, "safety": 0.4, "score": 0.73 } },
+    { "round": 1, "phase": "counteroffer", "agent": "delivery", "message": "r1-delivery: Drop SMS, defer chat and claiming, replace the live map with building and room text.", "counteroffer": "Drop SMS, defer chat and claiming, replace the live map with building and room text." },
+    { "round": 1, "phase": "vote", "agent": "architect", "message": "On r1-delivery: Dropping SMS is fair given the budget, but the map is the main reason students would use this over a group chat.", "vote": "reject", "scores": { "technical_quality": 0.75, "distinctiveness": 0.45, "score": 0.5 } },
+    { "round": 1, "phase": "vote", "agent": "delivery", "message": "On r1-delivery: Fits with 30h of buffer and $60 of spend.", "vote": "accept", "scores": { "low_risk": 0.8, "score": 0.94 } },
+    { "round": 1, "phase": "vote", "agent": "evidence", "message": "On r1-delivery: Accept; no evidence the map matters more than reliable posters.", "vote": "accept", "scores": { "user_value": 0.7, "safety": 0.8, "score": 0.85 } },
+    { "round": 1, "phase": "decision", "agent": "protocol", "message": "No candidate was accepted by everyone. r1-delivery has the most support (2/3) and becomes the draft for the next round." }
   ],
   "events": [
-    { "id": "e1", "kind": "agent_recruited", "description": "Recruited Research Scout (Semantic Scholar) for paper_search", "at_round": 1, "reopened_node_ids": [] },
-    { "id": "e2", "kind": "provider_failure", "description": "Semantic Scholar unavailable; switched to OpenAlex", "at_round": 2, "reopened_node_ids": ["f-gamify"] }
+    { "id": "e1", "kind": "agent_recruited", "description": "Recruited Food Safety & Liability Specialist: the idea involves distributing food to the public", "at_round": 1, "reopened_node_ids": [] },
+    { "id": "e2", "kind": "provider_failure", "description": "Semantic Scholar unavailable; switched to OpenAlex", "at_round": 2, "reopened_node_ids": ["r-trust"] }
   ],
   "outcome": {
     "status": "escalated",
-    "summary": "Consensus on core MVP. Leaderboards remain disputed: subjective motivation tradeoff, asking the user.",
-    "rounds_used": 2,
-    "open_disputes": ["f-gamify"],
+    "summary": "1 subjective tradeoff(s) remain disputed. Keeping the disagreement visible and asking the user.",
+    "rounds_used": 3,
+    "open_disputes": ["f-map"],
     "hard_constraint_violations": []
   }
 }

@@ -22,12 +22,15 @@ CORE_AGENTS = ("architect", "delivery", "evidence")
 NodeType = Literal["idea", "feature", "component", "constraint", "risk", "question"]
 NodeStatus = Literal["proposed", "agreed", "disputed", "deferred", "rejected"]
 Vote = Literal["accept", "reject", "abstain"]
-Phase = Literal["propose", "critique", "counteroffer", "vote"]
+# "decision" messages come from the protocol (agent="protocol"), never from an LLM.
+Phase = Literal["propose", "critique", "counteroffer", "vote", "decision"]
 
 
 class Constraints(BaseModel):
-    developers: int = Field(ge=1)
-    deadline_hours: float = Field(gt=0)
+    team_size: int = Field(ge=1)
+    timeline_weeks: float = Field(gt=0)
+    # Per person: 40 = full-time, ~10-15 = side project.
+    hours_per_week: float = Field(gt=0, default=40)
     budget_usd: Optional[float] = None
     must_have: list[str] = []
     avoid: list[str] = []
@@ -61,7 +64,9 @@ class Node(BaseModel):
     supported_by: list[str] = []
     objections: list[Objection] = []
     evidence: list[Evidence] = []
+    # Person-hours of work, and cash cost (paid APIs, hosting, licenses).
     estimate_hours: Optional[float] = None
+    cost_usd: Optional[float] = None
 
 
 class Question(BaseModel):

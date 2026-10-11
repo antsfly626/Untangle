@@ -50,14 +50,20 @@
     },
     "Constraints": {
       "properties": {
-        "developers": {
+        "team_size": {
           "minimum": 1,
-          "title": "Developers",
+          "title": "Team Size",
           "type": "integer"
         },
-        "deadline_hours": {
+        "timeline_weeks": {
           "exclusiveMinimum": 0,
-          "title": "Deadline Hours",
+          "title": "Timeline Weeks",
+          "type": "number"
+        },
+        "hours_per_week": {
+          "default": 40,
+          "exclusiveMinimum": 0,
+          "title": "Hours Per Week",
           "type": "number"
         },
         "budget_usd": {
@@ -90,8 +96,8 @@
         }
       },
       "required": [
-        "developers",
-        "deadline_hours"
+        "team_size",
+        "timeline_weeks"
       ],
       "title": "Constraints",
       "type": "object"
@@ -210,7 +216,8 @@
             "propose",
             "critique",
             "counteroffer",
-            "vote"
+            "vote",
+            "decision"
           ],
           "title": "Phase",
           "type": "string"
@@ -368,6 +375,18 @@
           ],
           "default": null,
           "title": "Estimate Hours"
+        },
+        "cost_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Usd"
         }
       },
       "required": [
