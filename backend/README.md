@@ -69,7 +69,32 @@ uvicorn api:app --reload --port 8000
 
 Every response is `{"id", "status", "summary", "error", "transport", "plan"}`, with `status` one
 of `needs_answers`, `negotiating`, `idle`. Messages return 409 while agents are negotiating.
-Interactive docs: http://localhost:8000/docs
+Sessions live in memory, so restarting the server clears them.
+
+**Try it without a frontend** at http://localhost:8000/docs ("Try it out" on each endpoint):
+
+1. `POST /sessions` with
+   `{"text": "An app where campus organizers post leftover food and students come pick it up. Just me, 10h a week, 2 months, $0 budget. Must have push notifications."}`
+   → `"status": "negotiating"` and an `"id"` (about 15s: it reads the idea and asks questions).
+   If the dump leaves out a limit, you get `"needs_answers"` and the questions are in `plan.questions`.
+2. `GET /sessions/{id}` every ~30s → `plan.negotiation` grows, then `"status": "idle"` with a
+   `summary` such as `"consensus: ..."` or `"escalated: ..."`.
+3. `POST /sessions/{id}/messages` with `{"text": "a friend joined, she can do 6 hours a week"}`
+   → `"negotiating"` again, with the change recorded in `plan.events`.
+
+**Live updates in the frontend** (browser `EventSource`):
+
+```ts
+const source = new EventSource(`http://localhost:8000/sessions/${id}/stream`);
+source.addEventListener("session", (e) => {
+  const session = JSON.parse((e as MessageEvent).data);
+  // session.status, session.plan.nodes, session.plan.negotiation, ...
+});
+// source.close() when leaving the page
+```
+
+If `localhost:8000` shows a plain "Error code: 404, File not found" page, another program
+(e.g. an old `python -m http.server 8000`) is using the port: stop it, or run on `--port 8001`.
 
 ## Run the agents over AGNTCY SLIM
 
