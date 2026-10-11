@@ -4,9 +4,8 @@
   "constraints": {
     "team_size": 2,
     "timeline_weeks": 8,
-    "hours_per_week": 12,
+    "weekly_hours": 24,
     "budget_usd": 300,
-    "must_have": ["post leftover food", "student notifications"],
     "avoid": ["charging students"]
   },
   "nodes": [
@@ -28,6 +27,7 @@
       "parent": "root",
       "proposed_by": "user",
       "rationale": "Must-have: the supply side of the app",
+      "required": true,
       "supported_by": ["architect", "delivery", "evidence"],
       "estimate_hours": 15,
       "cost_usd": 0
@@ -52,6 +52,7 @@
       "parent": "root",
       "proposed_by": "user",
       "rationale": "Must-have: food goes fast, so students need to know immediately",
+      "required": true,
       "supported_by": ["architect", "delivery", "evidence"],
       "estimate_hours": 15,
       "cost_usd": 0
@@ -150,6 +151,7 @@
       "parent": "root",
       "proposed_by": "user",
       "rationale": "User requirement",
+      "required": true,
       "supported_by": ["architect", "delivery", "evidence"]
     },
     {

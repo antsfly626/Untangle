@@ -4,7 +4,8 @@ No LLM decides the outcome. Agents critique, counteroffer, and vote; this module
 only applies fixed, explainable rules:
 
   node status   all keep -> agreed, all defer/reject -> deferred/rejected, mixed -> disputed
-  consensus     every agent accepts AND hard constraints pass
+  consensus     every agent accepts AND hard constraints pass; a suggested change is
+                still adopted if every agent accepts it and prefers it to the current plan
   next draft    the candidate with the most accepts (min 2) advances; a majority can
                 move the draft forward but can never finish the negotiation
   tie-break     Nash bargaining product of agents' margins above their minimums
@@ -17,14 +18,16 @@ only applies fixed, explainable rules:
 from __future__ import annotations
 
 import asyncio
-from typing import Awaitable, Callable, Optional
+import math
+from typing import Awaitable, Callable, Optional, Sequence, Union
 
 from agents import CORE_AGENTS, Agent, Candidate, CandidateVote, Counteroffer, Review
-from constraints import INACTIVE, metrics, planned_hours, violations
+from constraints import FOCUS_FACTOR, INACTIVE, metrics, planned_hours, similar_labels, violations
 from schemas import NegotiationMessage, Node, Objection, Outcome, Plan, Question
 
 MAX_ROUNDS = 3
 MIN_ACCEPTS_TO_ADVANCE = 2
+RESOLVED = "Resolved by renegotiation"
 
 OnUpdate = Optional[Callable[[Plan], Awaitable[None]]]
 
@@ -42,8 +45,8 @@ def derive_statuses(plan: Plan, reviews: list[Review]) -> Plan:
     out = plan.model_copy(deep=True)
     by_agent = {r.agent: {p.node_id: p for p in r.positions} for r in reviews}
     for node in out.nodes:
-        if node.id == "root" or node.type == "question":
-            continue  # questions stay open until the user answers them
+        if node.id == "root" or node.type == "question" or node.locked:
+            continue  # questions stay open for the user; locked nodes are the user's decision
         positions = {agent: stated.get(node.id) for agent, stated in by_agent.items()}
         wants = {a: (p.position if p else _current_direction(node)) for a, p in positions.items()}
         values = set(wants.values())
@@ -62,19 +65,57 @@ def derive_statuses(plan: Plan, reviews: list[Review]) -> Plan:
     return out
 
 
-def apply_counteroffer(plan: Plan, offer: Counteroffer, proposer: str, round_no: int) -> Plan:
+ESTIMATE_FLOOR = 0.5  # negotiation can't shrink an estimate below half its original
+DEFAULT_NEW_ESTIMATE = 8.0  # hours assumed when an agent adds work without an estimate
+
+
+def _floored(new: float, original: Optional[float]) -> float:
+    new = max(0.0, new)
+    return max(new, ESTIMATE_FLOOR * original) if original else new
+
+
+def apply_counteroffer(plan: Plan, offer: Counteroffer, proposer: str, round_no: int) -> tuple[Plan, list[str]]:
+    """Apply an offer to a copy of the plan. Returns the plan and human-readable
+    notes on every estimate change, so they're visible in the debate."""
     out = plan.model_copy(deep=True)
     nodes = {n.id: n for n in out.nodes}
+    notes: list[str] = []
+
     for change in offer.changes:
-        if change.node_id in nodes and change.node_id != "root":
-            nodes[change.node_id].status = change.status
+        node = nodes.get(change.node_id)
+        if not node or node.id == "root" or node.type == "question" or node.locked:
+            continue
+        if node.required and change.status != "agreed":
+            notes.append(f"ignored: can't drop the must-have '{node.label}'")
+            continue
+        node.status = change.status
+
     for update in offer.estimate_updates:
-        if update.node_id in nodes:
-            if update.estimate_hours is not None:
-                nodes[update.node_id].estimate_hours = max(0.0, update.estimate_hours)
-            if update.cost_usd is not None:
-                nodes[update.node_id].cost_usd = max(0.0, update.cost_usd)
+        node = nodes.get(update.node_id)
+        if not node:
+            continue
+        if update.estimate_hours is not None and update.estimate_hours != node.estimate_hours:
+            if node.original_estimate_hours is None:
+                node.original_estimate_hours = node.estimate_hours
+            new = _floored(update.estimate_hours, node.original_estimate_hours)
+            floor = " (floor: 50% of original)" if new != update.estimate_hours else ""
+            notes.append(f"{node.label}: {node.estimate_hours or 0:g}h -> {new:g}h{floor}")
+            node.estimate_hours = new
+        if update.cost_usd is not None and update.cost_usd != node.cost_usd:
+            if node.original_cost_usd is None:
+                node.original_cost_usd = node.cost_usd
+            new = _floored(update.cost_usd, node.original_cost_usd)
+            floor = " (floor: 50% of original)" if new != update.cost_usd else ""
+            notes.append(f"{node.label}: ${node.cost_usd or 0:g} -> ${new:g}{floor}")
+            node.cost_usd = new
+
     for i, new in enumerate(offer.new_nodes, 1):
+        if any(similar_labels(new.label, n.label) for n in out.nodes):
+            notes.append(f"skipped duplicate of an existing node: {new.label}")
+            continue
+        hours, rationale = new.estimate_hours, new.rationale
+        if hours is None and new.type in ("feature", "component"):
+            hours, rationale = DEFAULT_NEW_ESTIMATE, f"{rationale} (estimate missing: assumed {DEFAULT_NEW_ESTIMATE:g}h)"
         out.nodes.append(
             Node(
                 id=f"r{round_no}-{proposer}-{i}",
@@ -82,16 +123,18 @@ def apply_counteroffer(plan: Plan, offer: Counteroffer, proposer: str, round_no:
                 type=new.type,
                 parent=new.parent if new.parent in nodes else "root",
                 proposed_by=proposer,
-                rationale=new.rationale,
-                estimate_hours=new.estimate_hours,
+                rationale=rationale,
+                estimate_hours=hours,
                 cost_usd=new.cost_usd,
+                original_estimate_hours=hours,
+                original_cost_usd=new.cost_usd,
             )
         )
-    return out
+    return out, notes
 
 
 def _signature(plan: Plan) -> tuple:
-    return tuple(sorted((n.label.lower(), n.status, n.estimate_hours or 0) for n in plan.nodes))
+    return tuple(sorted((n.label.lower(), n.status, n.estimate_hours or 0, n.cost_usd or 0) for n in plan.nodes))
 
 
 def build_candidates(plan: Plan, reviews: list[Review], round_no: int) -> list[Candidate]:
@@ -100,16 +143,17 @@ def build_candidates(plan: Plan, reviews: list[Review], round_no: int) -> list[C
     for r in reviews:
         if not r.counteroffer:
             continue
-        revised = apply_counteroffer(plan, r.counteroffer, r.agent, round_no)
+        revised, notes = apply_counteroffer(plan, r.counteroffer, r.agent, round_no)
         sig = _signature(revised)
         if sig in seen:
             continue  # duplicate of another offer, or no actual change
         seen.add(sig)
-        out.append(Candidate(id=f"r{round_no}-{r.agent}", proposer=r.agent, summary=r.counteroffer.summary, plan=revised))
+        summary = r.counteroffer.summary + (f" [Estimate changes: {'; '.join(notes)}]" if notes else "")
+        out.append(Candidate(id=f"r{round_no}-{r.agent}", proposer=r.agent, summary=summary, plan=revised))
     return out
 
 
-def nash_product(votes: list[CandidateVote], thresholds: dict[str, float]) -> float:
+def nash_product(votes: Sequence[Union[CandidateVote, Review]], thresholds: dict[str, float]) -> float:
     """Nash bargaining: product of each agent's margin above its own minimum.
     Symmetric, so the tie-break favors no agent; a plan that leaves everyone
     comfortably above their minimum beats one that thrills one and barely
@@ -156,6 +200,39 @@ def choose(
     return None, False, f"No candidate reached {MIN_ACCEPTS_TO_ADVANCE}/{n_agents} accepts: deadlock."
 
 
+def pick_improvement(
+    candidates: list[Candidate], tally: dict[str, list[CandidateVote]], thresholds: dict[str, float]
+) -> tuple[Optional[Candidate], str]:
+    """When everyone already accepts the plan, adopt a suggested change only if every
+    agent accepts it AND says it prefers it to the current plan (a Pareto improvement
+    by stated preference). Among those, the Nash product decides; its scores all come
+    from the same vote calls, so they're comparable."""
+    n_agents = len(thresholds)
+
+    def counts(c: Candidate) -> tuple[int, int]:
+        votes = tally[c.id]
+        return sum(v.vote == "accept" for v in votes), sum(v.prefer_over_current for v in votes)
+
+    qualifying = [
+        c for c in candidates if counts(c) == (n_agents, n_agents) and not violations(c.plan)
+    ]
+    summary = ", ".join(
+        f"{c.id}: {counts(c)[0]}/{n_agents} accept, {counts(c)[1]}/{n_agents} prefer, "
+        f"Nash {nash_product(tally[c.id], thresholds):.4f}"
+        for c in candidates
+    )
+    if not qualifying:
+        return None, (
+            f"All agents accept the plan. No suggested change was accepted and preferred by every "
+            f"agent ({summary}). Keeping it. Consensus."
+        )
+    best = max(qualifying, key=lambda c: (nash_product(tally[c.id], thresholds), -planned_hours(c.plan), c.id))
+    return best, (
+        f"All agents accepted the plan, and every agent accepts and prefers {best.id}: adopted. "
+        f"Consensus. ({summary})"
+    )
+
+
 def peer_arguments(reviews: dict[str, Review], exclude: str) -> Optional[list[dict]]:
     """Other agents' arguments, deliberately without their votes."""
     args = [
@@ -175,6 +252,8 @@ def peer_arguments(reviews: dict[str, Review], exclude: str) -> Optional[list[di
 
 
 def _critique_text(r: Review) -> str:
+    if r.error:
+        return f"[Unavailable this round ({r.error}); counts as reject: no consent without a voice.]"
     text = r.message
     if r.changed_because:
         text += f" (Changed because: {r.changed_because})"
@@ -185,17 +264,59 @@ def _critique_text(r: Review) -> str:
     return text
 
 
+def relax_options(plan: Plan) -> list[str]:
+    """Concrete, computed ways to make the plan fit, so the user can just pick one."""
+    c = plan.constraints
+    m = metrics(plan)
+    options = []
+    if m["planned_hours"] > m["capacity_hours"]:
+        weeks = m["planned_hours"] / (c.weekly_hours * FOCUS_FACTOR)
+        hours = m["planned_hours"] / (c.timeline_weeks * FOCUS_FACTOR)
+        options += [
+            f"extend to about {math.ceil(weeks)} weeks at {c.weekly_hours:g}h/week",
+            f"raise to about {math.ceil(hours)}h/week to keep {c.timeline_weeks:g} weeks",
+        ]
+    if c.budget_usd is not None and m["planned_cost_usd"] > c.budget_usd:
+        options.append(f"raise the budget to about ${math.ceil(m['planned_cost_usd'])}")
+    for n in plan.nodes:
+        if n.required and n.status in INACTIVE:
+            options.append(f"drop the must-have '{n.label}'")
+    return options or ["cut scope"]
+
+
+def close_stale_questions(plan: Plan) -> None:
+    """Close the protocol's earlier questions that a renegotiation has resolved."""
+    nodes = {n.id: n for n in plan.nodes}
+    viol = violations(plan)
+    for q in plan.questions:
+        if q.answer is not None or q.asked_by != "protocol":
+            continue
+        kind, _, node_id = q.id.partition("-")
+        node = nodes.get(node_id)
+        resolved = (
+            (kind == "decide" and node_id == "overall" and plan.outcome.status == "consensus")
+            or (kind == "decide" and node is not None and node.status != "disputed")
+            or (kind == "confirm" and node is not None and (node.status not in INACTIVE or node.locked))
+            or (q.id == "relax-constraints" and not viol)
+        )
+        if resolved:
+            q.answer = RESOLVED
+
+
 def finalize(plan: Plan, reached_consensus: bool, rounds_used: int, last_reviews: dict[str, Review]) -> Plan:
     viol = violations(plan)
-    asked = {q.id for q in plan.questions}
+    existing = {q.id: q for q in plan.questions}
 
     def ask(qid: str, question: str, why: str) -> None:
-        if qid not in asked:
+        q = existing.get(qid)
+        if q is None:
             plan.questions.append(Question(id=qid, asked_by="protocol", question=question, why=why, priority=5))
+        elif q.answer == RESOLVED:  # the issue came back: ask again
+            q.question, q.why, q.answer = question, why, None
 
     # Never silently drop something the user asked for: the user has the final say.
     for node in plan.nodes:
-        if node.proposed_by == "user" and node.status in INACTIVE:
+        if node.proposed_by == "user" and node.status in INACTIVE and not node.locked:
             verb = "deferring" if node.status == "deferred" else "dropping"
             reasons = "; ".join(f"{o.agent}: {o.reason}" for o in node.objections) or "no reason recorded"
             ask(
@@ -213,13 +334,14 @@ def finalize(plan: Plan, reached_consensus: bool, rounds_used: int, last_reviews
             summary=f"All agents accepted the plan after {rounds_used} round(s).",
             rounds_used=rounds_used,
         )
+        close_stale_questions(plan)
         return plan
 
     disputed = [n for n in plan.nodes if n.status == "disputed"]
     if viol:
         ask(
             "relax-constraints",
-            "The agents could not fit the plan within your constraints. Extend the deadline, add people, or cut a must-have?",
+            f"The plan doesn't fit your limits. Options: {'; '.join(relax_options(plan))}. Which would you like?",
             "; ".join(viol),
         )
         status, summary = "unresolved", "Hard constraints still fail, so no plan can be adopted. The user must relax a constraint."
@@ -253,6 +375,7 @@ def finalize(plan: Plan, reached_consensus: bool, rounds_used: int, last_reviews
         open_disputes=[n.id for n in disputed],
         hard_constraint_violations=viol,
     )
+    close_stale_questions(plan)
     return plan
 
 
@@ -281,6 +404,29 @@ async def negotiate(
         if on_update:
             await on_update(current)
 
+    thresholds = {a.id: a.threshold for a in agents}
+
+    async def propose_and_vote(round_no: int, candidates: list[Candidate]) -> dict[str, list[CandidateVote]]:
+        """Log the counteroffers, then every agent votes on every one, independently."""
+        for c in candidates:
+            log(round_no, "counteroffer", c.proposer, f"{c.id}: {c.summary}", counteroffer=c.summary)
+        await emit()
+        ballots = await asyncio.gather(*(a.vote_on(current, candidates) for a in agents))
+        tally: dict[str, list[CandidateVote]] = {c.id: [] for c in candidates}
+        for agent, votes in zip(agents, ballots):
+            for v in votes:
+                tally[v.candidate_id].append(v)
+                flag = " [Vote overridden to reject: score below this agent's minimum.]" if v.overridden else ""
+                log(
+                    round_no,
+                    "vote",
+                    agent.id,
+                    f"On {v.candidate_id}: {v.reason}{flag}",
+                    vote=v.vote,
+                    scores={**v.ratings, "score": v.score},
+                )
+        return tally
+
     for round_no in range(first, first + max_rounds):
         rounds_used += 1
 
@@ -308,38 +454,32 @@ async def negotiate(
         current = derive_statuses(current, reviews)
         await emit()
 
-        # 3. Consensus on the plan as it stands?
+        candidates = build_candidates(current, reviews, round_no)
+
+        # 3. Consensus on the plan as it stands? If someone still suggested an
+        # improvement, adopt it only if every agent accepts and prefers it.
         if all(r.vote == "accept" for r in reviews) and not violations(current):
-            log(round_no, "decision", "protocol", "All agents accept and hard constraints pass: consensus.")
+            if candidates:
+                tally = await propose_and_vote(round_no, candidates)
+                chosen, why = pick_improvement(candidates, tally, thresholds)
+                log(round_no, "decision", "protocol", why)
+                if chosen:
+                    current = chosen.plan
+                    current.negotiation = history
+            else:
+                log(round_no, "decision", "protocol", "All agents accept and hard constraints pass: consensus.")
             return finalize(current, True, rounds_used, last_reviews)
 
         # 4. Counteroffers become candidate plans.
-        candidates = build_candidates(current, reviews, round_no)
         if not candidates:
             log(round_no, "decision", "protocol", "No agent made a usable counteroffer: deadlock.")
             break
-        for c in candidates:
-            log(round_no, "counteroffer", c.proposer, f"{c.id}: {c.summary}", counteroffer=c.summary)
-        await emit()
 
         # 5. Every agent votes on every candidate, independently.
-        ballots = await asyncio.gather(*(a.vote_on(current, candidates) for a in agents))
-        tally: dict[str, list[CandidateVote]] = {c.id: [] for c in candidates}
-        for agent, votes in zip(agents, ballots):
-            for v in votes:
-                tally[v.candidate_id].append(v)
-                flag = " [Vote overridden to reject: score below this agent's minimum.]" if v.overridden else ""
-                log(
-                    round_no,
-                    "vote",
-                    agent.id,
-                    f"On {v.candidate_id}: {v.reason}{flag}",
-                    vote=v.vote,
-                    scores={**v.ratings, "score": v.score},
-                )
+        tally = await propose_and_vote(round_no, candidates)
 
         # 6. Fixed rule picks what happens next.
-        chosen, consensus, why = choose(candidates, tally, {a.id: a.threshold for a in agents})
+        chosen, consensus, why = choose(candidates, tally, thresholds)
         log(round_no, "decision", "protocol", why)
         if chosen is None:
             break

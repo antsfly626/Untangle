@@ -78,6 +78,8 @@ class Review(BaseModel):
     score: float = 0.0
     overridden: bool = False
     unjustified_flip: bool = False
+    # Set when the agent's call failed; it then counts as a reject.
+    error: Optional[str] = None
 
 
 class CandidateVote(BaseModel):
@@ -89,6 +91,8 @@ class CandidateVote(BaseModel):
     vote: Vote = "reject"
     score: float = 0.0
     overridden: bool = False
+    # Stated directly, so improvements never depend on comparing scores across calls.
+    prefer_over_current: bool = False
 
 
 @dataclass
@@ -120,6 +124,9 @@ How to negotiate:
 "changed_because". Politeness or wanting agreement is not a reason.
 - When your core objective is protected, prefer a workable compromise to deadlock: offer a \
 concrete counteroffer the others could plausibly accept.
+- Nodes marked "locked" were decided by the user. Treat them as fixed and plan around them.
+- Nodes marked "required" are the user's must-haves. A plan that defers or rejects one fails the \
+hard constraints, so make room elsewhere; you may still propose a cheaper way to deliver it.
 - Be concrete. Refer to node ids. Estimates are person-hours of work; costs are cash in USD \
 (paid APIs, hosting, licenses). "measured" gives the team's capacity and budget use.
 
@@ -128,6 +135,10 @@ Positions and counteroffers:
 "concern" means you would live with it.
 - A counteroffer must change the plan through "changes", "new_nodes", or "estimate_updates". \
 A counteroffer with none of these is ignored.
+- Every new feature or component needs estimate_hours and cost_usd; missing estimates are \
+assumed to be 8 hours.
+- Estimates can't be cut below 50% of a node's original estimate (code enforces this). To make \
+something cheaper, propose a smaller variant as a new node instead of shrinking the estimate.
 - Instead of all-or-nothing, consider a smaller variant of a contested feature as a new node \
 (e.g. "a simple list view" instead of "a live map") and defer the full version.
 
@@ -155,9 +166,11 @@ VOTE_FORMAT = """\
 Respond with only a JSON object with these keys, in this order:
 {
   "analysis": "your private reasoning, 2-5 sentences",
-  "votes": [{"candidate_id": "...", "reason": "...", "ratings": {RATING_KEYS}, "vote": "accept|reject"}]
+  "votes": [{"candidate_id": "...", "reason": "...", "ratings": {RATING_KEYS},
+             "prefer_over_current": true or false, "vote": "accept|reject"}]
 }
-Vote on every candidate independently."""
+Vote on every candidate independently. "vote": could you accept this plan? \
+"prefer_over_current": would you rather have this candidate than the current plan?"""
 
 
 def plan_brief(plan: Plan) -> dict:
@@ -168,9 +181,12 @@ def plan_brief(plan: Plan) -> dict:
             {
                 k: v
                 for k, v in n.model_dump(
-                    include={"id", "label", "type", "status", "parent", "estimate_hours", "cost_usd", "rationale"}
+                    include={
+                        "id", "label", "type", "status", "parent", "rationale", "locked", "required",
+                        "estimate_hours", "cost_usd", "original_estimate_hours", "original_cost_usd",
+                    }
                 ).items()
-                if v not in (None, "")
+                if v not in (None, "", False)
             }
             for n in plan.nodes
         ],
@@ -273,7 +289,10 @@ class Agent:
             parts.append("Other agents' arguments last round:\n" + json.dumps(peer_arguments, indent=1))
         parts.append(REVIEW_FORMAT.replace("{RATING_KEYS}", self._rating_keys()))
 
-        raw = await complete_json(self.system_prompt(), "\n\n".join(parts))
+        try:
+            raw = await complete_json(self.system_prompt(), "\n\n".join(parts))
+        except Exception as err:  # unavailable agent: no consent without a voice
+            return Review(agent=self.id, message="(unavailable this round)", error=f"{type(err).__name__}: {err}"[:200])
         review = _parse_review(raw, self.id)
         review.ratings = _clamp_ratings(raw.get("ratings") or {}, list(self.ratings))
         review.score = self._score(plan, review.ratings)
@@ -298,8 +317,12 @@ class Agent:
             f"Candidate revisions:\n{json.dumps(listing, indent=1)}\n\n"
             + VOTE_FORMAT.replace("{RATING_KEYS}", self._rating_keys())
         )
-        raw = await complete_json(self.system_prompt(), user)
-        by_id = {v.get("candidate_id"): v for v in raw.get("votes", []) if isinstance(v, dict)}
+        try:
+            raw = await complete_json(self.system_prompt(), user)
+        except Exception as err:  # unavailable agent: every vote counts as reject
+            raw = {"votes": [{"candidate_id": c.id, "reason": f"unavailable ({type(err).__name__})"} for c in candidates]}
+        votes_raw = raw.get("votes") if isinstance(raw.get("votes"), list) else []
+        by_id = {v.get("candidate_id"): v for v in votes_raw if isinstance(v, dict)}
 
         votes = []
         for c in candidates:
@@ -318,6 +341,7 @@ class Agent:
                     vote=final,
                     score=score,
                     overridden=overridden,
+                    prefer_over_current=str(v.get("prefer_over_current")).strip().lower() == "true",
                 )
             )
         return votes

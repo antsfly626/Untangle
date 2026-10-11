@@ -29,11 +29,13 @@ Phase = Literal["propose", "critique", "counteroffer", "vote", "decision"]
 class Constraints(BaseModel):
     team_size: int = Field(ge=1)
     timeline_weeks: float = Field(gt=0)
-    # Per person: 40 = full-time, ~10-15 = side project.
-    hours_per_week: float = Field(gt=0, default=40)
+    # Total for the whole team (people can differ: 12h + 6h = 18).
+    weekly_hours: float = Field(gt=0)
     budget_usd: Optional[float] = None
-    must_have: list[str] = []
+    # Must-haves are nodes with required=True, not text, so checks never depend on wording.
     avoid: list[str] = []
+    # Limits the user didn't give, filled with defaults (e.g. ["budget_usd"]).
+    assumed: list[str] = []
 
 
 class Objection(BaseModel):
@@ -67,6 +69,13 @@ class Node(BaseModel):
     # Person-hours of work, and cash cost (paid APIs, hosting, licenses).
     estimate_hours: Optional[float] = None
     cost_usd: Optional[float] = None
+    # First estimates, kept so negotiation can't shrink them below a floor.
+    original_estimate_hours: Optional[float] = None
+    original_cost_usd: Optional[float] = None
+    # A user must-have: a plan that defers or rejects it fails the hard constraints.
+    required: bool = False
+    # Set when the user decided this node's status; agents can't change it.
+    locked: bool = False
 
 
 class Question(BaseModel):
@@ -122,7 +131,12 @@ class NegotiationMessage(BaseModel):
 class Event(BaseModel):
     id: str
     kind: Literal[
-        "deadline_change", "provider_failure", "agent_unavailable", "user_input", "agent_recruited"
+        "deadline_change",
+        "constraint_change",
+        "provider_failure",
+        "agent_unavailable",
+        "user_input",
+        "agent_recruited",
     ]
     description: str
     at_round: int

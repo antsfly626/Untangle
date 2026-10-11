@@ -60,10 +60,9 @@
           "title": "Timeline Weeks",
           "type": "number"
         },
-        "hours_per_week": {
-          "default": 40,
+        "weekly_hours": {
           "exclusiveMinimum": 0,
-          "title": "Hours Per Week",
+          "title": "Weekly Hours",
           "type": "number"
         },
         "budget_usd": {
@@ -78,14 +77,6 @@
           "default": null,
           "title": "Budget Usd"
         },
-        "must_have": {
-          "default": [],
-          "items": {
-            "type": "string"
-          },
-          "title": "Must Have",
-          "type": "array"
-        },
         "avoid": {
           "default": [],
           "items": {
@@ -93,11 +84,20 @@
           },
           "title": "Avoid",
           "type": "array"
+        },
+        "assumed": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumed",
+          "type": "array"
         }
       },
       "required": [
         "team_size",
-        "timeline_weeks"
+        "timeline_weeks",
+        "weekly_hours"
       ],
       "title": "Constraints",
       "type": "object"
@@ -111,6 +111,7 @@
         "kind": {
           "enum": [
             "deadline_change",
+            "constraint_change",
             "provider_failure",
             "agent_unavailable",
             "user_input",
@@ -387,6 +388,40 @@
           ],
           "default": null,
           "title": "Cost Usd"
+        },
+        "original_estimate_hours": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Original Estimate Hours"
+        },
+        "original_cost_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Original Cost Usd"
+        },
+        "required": {
+          "default": false,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "locked": {
+          "default": false,
+          "title": "Locked",
+          "type": "boolean"
         }
       },
       "required": [

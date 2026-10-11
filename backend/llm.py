@@ -13,10 +13,18 @@ from openai import AsyncOpenAI
 
 load_dotenv(Path(__file__).resolve().parent / ".env")
 
+_missing = [k for k in ("LLM_MODEL", "LLM_BASE_URL", "LLM_API_KEY") if not os.environ.get(k)]
+if _missing:
+    raise RuntimeError(f"Missing {', '.join(_missing)} in backend/.env")
+
 MODEL = os.environ["LLM_MODEL"]
+# The SDK already retries connection errors, 429s, and 5xx; the timeout stops
+# one hung call from freezing a whole negotiation.
 _client = AsyncOpenAI(
     base_url=os.environ["LLM_BASE_URL"].rstrip("/") + "/v1",
     api_key=os.environ["LLM_API_KEY"],
+    timeout=120,
+    max_retries=2,
 )
 
 # Running totals, used later for the baseline comparison (latency + cost).
