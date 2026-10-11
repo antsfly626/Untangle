@@ -1,0 +1,817 @@
+{
+  "metrics": [
+    [
+      "violations",
+      "Hard-constraint violations",
+      "lower"
+    ],
+    [
+      "must_haves_dropped",
+      "Must-haves dropped",
+      "lower"
+    ],
+    [
+      "user_ideas_dropped_silently",
+      "Your ideas dropped without asking",
+      "lower"
+    ],
+    [
+      "tradeoffs_surfaced",
+      "Tradeoffs surfaced to the user",
+      "higher"
+    ],
+    [
+      "capacity_use_pct",
+      "Capacity used (%)",
+      "target ~80"
+    ],
+    [
+      "safeguards_added",
+      "Risks/safeguards added",
+      "higher"
+    ],
+    [
+      "estimates_slashed",
+      "Estimates cut >50%",
+      "lower"
+    ],
+    [
+      "llm_calls",
+      "LLM calls",
+      "lower"
+    ],
+    [
+      "tokens",
+      "Tokens",
+      "lower"
+    ],
+    [
+      "seconds",
+      "Wall time (s)",
+      "lower"
+    ]
+  ],
+  "results": [
+    {
+      "idea": "food-sharing",
+      "baseline": {
+        "violations": 0,
+        "violation_details": [],
+        "must_haves_dropped": 0,
+        "user_ideas_dropped_silently": 3,
+        "dropped_labels": [
+          "Live map",
+          "SMS alerts",
+          "In-app chat"
+        ],
+        "tradeoffs_surfaced": 0,
+        "capacity_use_pct": 98,
+        "safeguards_added": 9,
+        "safeguard_labels": [
+          "Installable campus PWA shell and core student/organizer flows",
+          "Managed backend, data model, and access controls",
+          "Create, edit, and expire food listings",
+          "Browser push notification delivery",
+          "Report listing and basic admin moderation",
+          "Food information and pickup safety guidance",
+          "Push compatibility and permission constraint",
+          "Food safety, stale listing, and misleading information risk",
+          "Cross-device QA, accessibility, and privacy/security checks"
+        ],
+        "added": [
+          {
+            "label": "Installable campus PWA shell and core student/organizer flows",
+            "type": "component",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 8.0
+          },
+          {
+            "label": "Student accounts and approved-organizer access",
+            "type": "feature",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 8.0
+          },
+          {
+            "label": "Managed backend, data model, and access controls",
+            "type": "component",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 12.0
+          },
+          {
+            "label": "Create, edit, and expire food listings",
+            "type": "feature",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 16.0
+          },
+          {
+            "label": "Browse active listings and view pickup details",
+            "type": "feature",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 10.0
+          },
+          {
+            "label": "Claim food and update availability",
+            "type": "feature",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 8.0
+          },
+          {
+            "label": "Browser push notification delivery",
+            "type": "feature",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 14.0
+          },
+          {
+            "label": "In-app notification inbox fallback",
+            "type": "feature",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 4.0
+          },
+          {
+            "label": "Report listing and basic admin moderation",
+            "type": "feature",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 8.0
+          },
+          {
+            "label": "Food information and pickup safety guidance",
+            "type": "feature",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 4.0
+          },
+          {
+            "label": "Push compatibility and permission constraint",
+            "type": "constraint",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 2.0
+          },
+          {
+            "label": "Food safety, stale listing, and misleading information risk",
+            "type": "risk",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 3.0
+          },
+          {
+            "label": "Cross-device QA, accessibility, and privacy/security checks",
+            "type": "component",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 14.0
+          },
+          {
+            "label": "Deploy and run a small campus pilot",
+            "type": "component",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 6.0
+          }
+        ],
+        "estimates_slashed": 0,
+        "outcome": "consensus",
+        "llm_calls": 1,
+        "tokens": 4763,
+        "seconds": 25
+      },
+      "agents": {
+        "violations": 0,
+        "violation_details": [],
+        "must_haves_dropped": 0,
+        "user_ideas_dropped_silently": 0,
+        "dropped_labels": [
+          "SMS alerts",
+          "In-app chat"
+        ],
+        "tradeoffs_surfaced": 2,
+        "capacity_use_pct": 81,
+        "safeguards_added": 3,
+        "safeguard_labels": [
+          "Basic organizer verification and admin moderation tools",
+          "Testing, accessibility checks, and app release preparation",
+          "Location and notification privacy safeguards"
+        ],
+        "added": [
+          {
+            "label": "Cross-platform app and Supabase foundation: authentication, data model, access controls, and realtime availability updates",
+            "type": "component",
+            "status": "agreed",
+            "by": "architect",
+            "hours": 14.0
+          },
+          {
+            "label": "Organizer flow to create, edit, and close food pickup posts",
+            "type": "feature",
+            "status": "agreed",
+            "by": "architect",
+            "hours": 16.0
+          },
+          {
+            "label": "Student discovery and pickup status flow",
+            "type": "feature",
+            "status": "agreed",
+            "by": "architect",
+            "hours": 18.0
+          },
+          {
+            "label": "Basic organizer verification and admin moderation tools",
+            "type": "component",
+            "status": "agreed",
+            "by": "architect",
+            "hours": 8.0
+          },
+          {
+            "label": "Testing, accessibility checks, and app release preparation",
+            "type": "component",
+            "status": "agreed",
+            "by": "architect",
+            "hours": 18.0
+          },
+          {
+            "label": "Location and notification privacy safeguards",
+            "type": "component",
+            "status": "agreed",
+            "by": "architect",
+            "hours": 5.0
+          }
+        ],
+        "estimates_slashed": 0,
+        "outcome": "consensus",
+        "llm_calls": 6,
+        "tokens": 30867,
+        "seconds": 41
+      }
+    },
+    {
+      "idea": "study-buddy",
+      "baseline": {
+        "violations": 0,
+        "violation_details": [],
+        "must_haves_dropped": 0,
+        "user_ideas_dropped_silently": 3,
+        "dropped_labels": [
+          "Voice tutor",
+          "Multiplayer quiz battles",
+          "Native iOS and Android apps"
+        ],
+        "tradeoffs_surfaced": 0,
+        "capacity_use_pct": 83,
+        "safeguards_added": 1,
+        "safeguard_labels": [
+          "Privacy-conscious notes handling"
+        ],
+        "added": [
+          {
+            "label": "Responsive browser-based MVP",
+            "type": "feature",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 10.0
+          },
+          {
+            "label": "AI generation integration with hard spend cap",
+            "type": "component",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 8.0
+          },
+          {
+            "label": "Review and edit generated flashcards",
+            "type": "feature",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 4.0
+          },
+          {
+            "label": "Privacy-conscious notes handling",
+            "type": "constraint",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 4.0
+          },
+          {
+            "label": "Testing and deployment",
+            "type": "component",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 6.0
+          }
+        ],
+        "estimates_slashed": 0,
+        "outcome": "consensus",
+        "llm_calls": 1,
+        "tokens": 2420,
+        "seconds": 11
+      },
+      "agents": {
+        "violations": 0,
+        "violation_details": [],
+        "must_haves_dropped": 0,
+        "user_ideas_dropped_silently": 0,
+        "dropped_labels": [
+          "Voice tutor",
+          "Multiplayer quiz battles",
+          "Native iOS and Android apps"
+        ],
+        "tradeoffs_surfaced": 3,
+        "capacity_use_pct": 70,
+        "safeguards_added": 1,
+        "safeguard_labels": [
+          "Accessible responsive browser interface for the flashcard workflow"
+        ],
+        "added": [
+          {
+            "label": "Accessible responsive browser interface for the flashcard workflow",
+            "type": "component",
+            "status": "agreed",
+            "by": "evidence",
+            "hours": 12.0
+          },
+          {
+            "label": "Show supporting note excerpts and require student review of generated cards",
+            "type": "feature",
+            "status": "agreed",
+            "by": "evidence",
+            "hours": 5.0
+          },
+          {
+            "label": "Process notes ephemerally and provide a clear delete/reset control",
+            "type": "component",
+            "status": "agreed",
+            "by": "evidence",
+            "hours": 3.0
+          },
+          {
+            "label": "Test the flashcard workflow with a small group of college students",
+            "type": "component",
+            "status": "agreed",
+            "by": "evidence",
+            "hours": 4.0
+          }
+        ],
+        "estimates_slashed": 0,
+        "outcome": "consensus",
+        "llm_calls": 6,
+        "tokens": 30035,
+        "seconds": 36
+      }
+    },
+    {
+      "idea": "bakery-preorders",
+      "baseline": {
+        "violations": 0,
+        "violation_details": [],
+        "must_haves_dropped": 0,
+        "user_ideas_dropped_silently": 2,
+        "dropped_labels": [
+          "Loyalty points",
+          "SMS pickup reminders"
+        ],
+        "tradeoffs_surfaced": 0,
+        "capacity_use_pct": 69,
+        "safeguards_added": 2,
+        "safeguard_labels": [
+          "Use basic platform inventory counts and update stock manually",
+          "Payment processing fees and platform plan changes may affect the budget"
+        ],
+        "added": [
+          {
+            "label": "Set up a hosted storefront and checkout on a suitable free tier (for example, Square Online); avoid custom development",
+            "type": "component",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 5.0
+          },
+          {
+            "label": "Configure pickup days, hours, order cutoffs, and customer instructions",
+            "type": "feature",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 2.0
+          },
+          {
+            "label": "Add a small initial product catalog with prices, availability, and photos",
+            "type": "feature",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 3.0
+          },
+          {
+            "label": "Use basic platform inventory counts and update stock manually",
+            "type": "constraint",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 1.0
+          },
+          {
+            "label": "Test payment, order confirmation, pickup instructions, and stock changes before launch",
+            "type": "feature",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 2.0
+          },
+          {
+            "label": "Payment processing fees and platform plan changes may affect the budget",
+            "type": "risk",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 0.5
+          }
+        ],
+        "estimates_slashed": 0,
+        "outcome": "consensus",
+        "llm_calls": 1,
+        "tokens": 2388,
+        "seconds": 12
+      },
+      "agents": {
+        "violations": 0,
+        "violation_details": [],
+        "must_haves_dropped": 0,
+        "user_ideas_dropped_silently": 0,
+        "dropped_labels": [
+          "Loyalty points",
+          "SMS pickup reminders"
+        ],
+        "tradeoffs_surfaced": 2,
+        "capacity_use_pct": 89,
+        "safeguards_added": 1,
+        "safeguard_labels": [
+          "Safe, accessible checkout and clear pickup/refund information"
+        ],
+        "added": [
+          {
+            "label": "Configure a hosted storefront with product listings, pickup selection, and order confirmation",
+            "type": "component",
+            "status": "agreed",
+            "by": "evidence",
+            "hours": 6.0
+          },
+          {
+            "label": "Safe, accessible checkout and clear pickup/refund information",
+            "type": "component",
+            "status": "agreed",
+            "by": "evidence",
+            "hours": 2.0
+          }
+        ],
+        "estimates_slashed": 0,
+        "outcome": "consensus",
+        "llm_calls": 6,
+        "tokens": 24465,
+        "seconds": 30
+      }
+    },
+    {
+      "idea": "food-sharing",
+      "baseline": {
+        "violations": 0,
+        "violation_details": [],
+        "must_haves_dropped": 0,
+        "user_ideas_dropped_silently": 3,
+        "dropped_labels": [
+          "Live map",
+          "SMS alerts",
+          "In-app chat"
+        ],
+        "tradeoffs_surfaced": 0,
+        "capacity_use_pct": 94,
+        "safeguards_added": 5,
+        "safeguard_labels": [
+          "Mobile-friendly app shell and in-app feed",
+          "Organizer onboarding and basic authorization",
+          "Food-safety details, reporting, and expiry",
+          "Testing, accessibility, privacy, and deployment",
+          "Risk: stale or misleading food listings"
+        ],
+        "added": [
+          {
+            "label": "Student browse and listing details",
+            "type": "feature",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 10.0
+          },
+          {
+            "label": "Listing availability and pickup lifecycle",
+            "type": "feature",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 8.0
+          },
+          {
+            "label": "Mobile-friendly app shell and in-app feed",
+            "type": "component",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 14.0
+          },
+          {
+            "label": "Backend, database, and organizer sign-in",
+            "type": "component",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 23.0
+          },
+          {
+            "label": "Organizer onboarding and basic authorization",
+            "type": "feature",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 5.0
+          },
+          {
+            "label": "Food-safety details, reporting, and expiry",
+            "type": "constraint",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 8.0
+          },
+          {
+            "label": "Testing, accessibility, privacy, and deployment",
+            "type": "component",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 16.0
+          },
+          {
+            "label": "Confirm campus food-distribution rules",
+            "type": "question",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 3.0
+          },
+          {
+            "label": "Risk: stale or misleading food listings",
+            "type": "risk",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 3.0
+          }
+        ],
+        "estimates_slashed": 0,
+        "outcome": "consensus",
+        "llm_calls": 1,
+        "tokens": 3976,
+        "seconds": 21
+      },
+      "agents": {
+        "violations": 0,
+        "violation_details": [],
+        "must_haves_dropped": 0,
+        "user_ideas_dropped_silently": 0,
+        "dropped_labels": [
+          "Live map",
+          "SMS alerts",
+          "In-app chat"
+        ],
+        "tradeoffs_surfaced": 3,
+        "capacity_use_pct": 54,
+        "safeguards_added": 1,
+        "safeguard_labels": [
+          "Listing freshness and food-safety information controls"
+        ],
+        "added": [
+          {
+            "label": "Listing freshness and food-safety information controls",
+            "type": "feature",
+            "status": "agreed",
+            "by": "evidence",
+            "hours": 12.0
+          },
+          {
+            "label": "Pilot validation with organizers and students",
+            "type": "question",
+            "status": "proposed",
+            "by": "evidence",
+            "hours": 10.0
+          }
+        ],
+        "estimates_slashed": 0,
+        "outcome": "consensus",
+        "llm_calls": 6,
+        "tokens": 28432,
+        "seconds": 33
+      }
+    },
+    {
+      "idea": "study-buddy",
+      "baseline": {
+        "violations": 0,
+        "violation_details": [],
+        "must_haves_dropped": 0,
+        "user_ideas_dropped_silently": 3,
+        "dropped_labels": [
+          "Voice tutor",
+          "Multiplayer quiz battles",
+          "Native iOS and Android apps"
+        ],
+        "tradeoffs_surfaced": 0,
+        "capacity_use_pct": 71,
+        "safeguards_added": 2,
+        "safeguard_labels": [
+          "MVP input and privacy boundary",
+          "Generated-card accuracy risk"
+        ],
+        "added": [
+          {
+            "label": "Responsive installable web app (PWA)",
+            "type": "component",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 8.0
+          },
+          {
+            "label": "Local deck persistence",
+            "type": "component",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 3.0
+          },
+          {
+            "label": "MVP input and privacy boundary",
+            "type": "constraint",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 0.0
+          },
+          {
+            "label": "Deploy the MVP",
+            "type": "component",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 4.0
+          },
+          {
+            "label": "Cross-device and workflow testing",
+            "type": "component",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 6.0
+          },
+          {
+            "label": "Generated-card accuracy risk",
+            "type": "risk",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 2.0
+          }
+        ],
+        "estimates_slashed": 0,
+        "outcome": "consensus",
+        "llm_calls": 1,
+        "tokens": 3223,
+        "seconds": 19
+      },
+      "agents": {
+        "violations": 0,
+        "violation_details": [],
+        "must_haves_dropped": 0,
+        "user_ideas_dropped_silently": 0,
+        "dropped_labels": [
+          "Voice tutor",
+          "Multiplayer quiz battles",
+          "Native iOS and Android apps"
+        ],
+        "tradeoffs_surfaced": 3,
+        "capacity_use_pct": 70,
+        "safeguards_added": 1,
+        "safeguard_labels": [
+          "Accessible responsive browser interface for the flashcard workflow"
+        ],
+        "added": [
+          {
+            "label": "Accessible responsive browser interface for the flashcard workflow",
+            "type": "component",
+            "status": "agreed",
+            "by": "evidence",
+            "hours": 12.0
+          },
+          {
+            "label": "Show supporting note excerpts and require student review of generated cards",
+            "type": "feature",
+            "status": "agreed",
+            "by": "evidence",
+            "hours": 5.0
+          },
+          {
+            "label": "Process notes ephemerally and provide a clear delete/reset control",
+            "type": "component",
+            "status": "agreed",
+            "by": "evidence",
+            "hours": 3.0
+          },
+          {
+            "label": "Test the flashcard workflow with a small group of college students",
+            "type": "component",
+            "status": "agreed",
+            "by": "evidence",
+            "hours": 4.0
+          }
+        ],
+        "estimates_slashed": 0,
+        "outcome": "consensus",
+        "llm_calls": 6,
+        "tokens": 29980,
+        "seconds": 46
+      }
+    },
+    {
+      "idea": "bakery-preorders",
+      "baseline": {
+        "violations": 0,
+        "violation_details": [],
+        "must_haves_dropped": 0,
+        "user_ideas_dropped_silently": 2,
+        "dropped_labels": [
+          "Loyalty points",
+          "SMS pickup reminders"
+        ],
+        "tradeoffs_surfaced": 0,
+        "capacity_use_pct": 74,
+        "safeguards_added": 2,
+        "safeguard_labels": [
+          "Test checkout, pickup instructions, and stock updates",
+          "Hosted-platform and payment-fee limitation"
+        ],
+        "added": [
+          {
+            "label": "Configure hosted storefront, product catalog, and preorder pickup flow",
+            "type": "component",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 4.0
+          },
+          {
+            "label": "Test checkout, pickup instructions, and stock updates",
+            "type": "feature",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 3.0
+          },
+          {
+            "label": "Hosted-platform and payment-fee limitation",
+            "type": "constraint",
+            "status": "agreed",
+            "by": "baseline",
+            "hours": 0.5
+          }
+        ],
+        "estimates_slashed": 1,
+        "outcome": "consensus",
+        "llm_calls": 1,
+        "tokens": 2237,
+        "seconds": 11
+      },
+      "agents": {
+        "violations": 0,
+        "violation_details": [],
+        "must_haves_dropped": 0,
+        "user_ideas_dropped_silently": 0,
+        "dropped_labels": [
+          "Loyalty points",
+          "SMS pickup reminders",
+          "Inventory tracking"
+        ],
+        "tradeoffs_surfaced": 3,
+        "capacity_use_pct": 80,
+        "safeguards_added": 2,
+        "safeguard_labels": [
+          "Accessible menu and preorder flow with manually set per-item order limits",
+          "Hosted checkout and clear customer-facing pickup/refund and privacy information"
+        ],
+        "added": [
+          {
+            "label": "Accessible menu and preorder flow with manually set per-item order limits",
+            "type": "feature",
+            "status": "agreed",
+            "by": "evidence",
+            "hours": 8.0
+          },
+          {
+            "label": "Hosted checkout and clear customer-facing pickup/refund and privacy information",
+            "type": "risk",
+            "status": "agreed",
+            "by": "evidence",
+            "hours": 2.0
+          }
+        ],
+        "estimates_slashed": 0,
+        "outcome": "consensus",
+        "llm_calls": 6,
+        "tokens": 23935,
+        "seconds": 27
+      }
+    }
+  ]
+}

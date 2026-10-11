@@ -133,6 +133,9 @@ Each agent becomes its own A2A server on SLIM; the protocol broadcasts each roun
 | `agent_server.py` | Runs an agent as an A2A server on SLIM |
 | `llm.py` | LLM client for the LiteLLM proxy |
 | `test_rules.py` | Checks for the code-only rules |
+| `baseline.py` | Single-LLM planner with no safeguards, for comparison |
+| `compare.py` | Eval: agents vs baseline on 3 ideas → `shared/baseline_comparison.json` (`--repeats N`) |
+| `api.py` | FastAPI app for the frontend |
 
 ## Troubleshooting
 
