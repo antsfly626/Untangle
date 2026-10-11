@@ -54,6 +54,23 @@ python negotiation.py              # result saved to runs/latest.json
 
 Both run the agents in-process by default.
 
+**API for the frontend** (CORS allows `http://localhost:3000`; override with `CORS_ORIGINS`):
+
+```bash
+uvicorn api:app --reload --port 8000
+```
+
+| Endpoint | Purpose |
+|---|---|
+| `POST /sessions` `{"text": ...}` | Brain dump → plan + questions; negotiation starts once limits are known |
+| `GET /sessions/{id}` | Current session |
+| `POST /sessions/{id}/messages` `{"text": ...}` | Answers, new ideas, changes, decisions; `"go"` skips open questions |
+| `GET /sessions/{id}/stream` | Server-sent events: a `session` event on every change, live during negotiation |
+
+Every response is `{"id", "status", "summary", "error", "transport", "plan"}`, with `status` one
+of `needs_answers`, `negotiating`, `idle`. Messages return 409 while agents are negotiating.
+Interactive docs: http://localhost:8000/docs
+
 ## Run the agents over AGNTCY SLIM
 
 Each agent becomes its own A2A server on SLIM; the protocol broadcasts each round to them
