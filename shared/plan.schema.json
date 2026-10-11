@@ -1,0 +1,683 @@
+{
+  "$defs": {
+    "Component": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "tech": {
+          "title": "Tech",
+          "type": "string"
+        },
+        "purpose": {
+          "title": "Purpose",
+          "type": "string"
+        },
+        "status": {
+          "default": "proposed",
+          "enum": [
+            "proposed",
+            "agreed",
+            "disputed",
+            "deferred",
+            "rejected"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "depends_on": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Depends On",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "tech",
+        "purpose"
+      ],
+      "title": "Component",
+      "type": "object"
+    },
+    "Constraints": {
+      "properties": {
+        "developers": {
+          "minimum": 1,
+          "title": "Developers",
+          "type": "integer"
+        },
+        "deadline_hours": {
+          "exclusiveMinimum": 0,
+          "title": "Deadline Hours",
+          "type": "number"
+        },
+        "budget_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Budget Usd"
+        },
+        "must_have": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Must Have",
+          "type": "array"
+        },
+        "avoid": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Avoid",
+          "type": "array"
+        }
+      },
+      "required": [
+        "developers",
+        "deadline_hours"
+      ],
+      "title": "Constraints",
+      "type": "object"
+    },
+    "Event": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "deadline_change",
+            "provider_failure",
+            "agent_unavailable",
+            "user_input",
+            "agent_recruited"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "at_round": {
+          "title": "At Round",
+          "type": "integer"
+        },
+        "reopened_node_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Reopened Node Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "description",
+        "at_round"
+      ],
+      "title": "Event",
+      "type": "object"
+    },
+    "Evidence": {
+      "properties": {
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        },
+        "year": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Year"
+        },
+        "source": {
+          "enum": [
+            "semantic_scholar",
+            "openalex"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "stance": {
+          "enum": [
+            "supports",
+            "challenges",
+            "inconclusive"
+          ],
+          "title": "Stance",
+          "type": "string"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "abstract_only": {
+          "default": true,
+          "title": "Abstract Only",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "title",
+        "url",
+        "source",
+        "stance",
+        "summary"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "NegotiationMessage": {
+      "properties": {
+        "round": {
+          "minimum": 1,
+          "title": "Round",
+          "type": "integer"
+        },
+        "phase": {
+          "enum": [
+            "propose",
+            "critique",
+            "counteroffer",
+            "vote"
+          ],
+          "title": "Phase",
+          "type": "string"
+        },
+        "agent": {
+          "title": "Agent",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "target_node_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Node Ids",
+          "type": "array"
+        },
+        "vote": {
+          "anyOf": [
+            {
+              "enum": [
+                "accept",
+                "reject",
+                "abstain"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vote"
+        },
+        "scores": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "default": {},
+          "title": "Scores",
+          "type": "object"
+        },
+        "counteroffer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Counteroffer"
+        }
+      },
+      "required": [
+        "round",
+        "phase",
+        "agent",
+        "message"
+      ],
+      "title": "NegotiationMessage",
+      "type": "object"
+    },
+    "Node": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "idea",
+            "feature",
+            "component",
+            "constraint",
+            "risk",
+            "question"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "status": {
+          "default": "proposed",
+          "enum": [
+            "proposed",
+            "agreed",
+            "disputed",
+            "deferred",
+            "rejected"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent"
+        },
+        "proposed_by": {
+          "title": "Proposed By",
+          "type": "string"
+        },
+        "rationale": {
+          "default": "",
+          "title": "Rationale",
+          "type": "string"
+        },
+        "supported_by": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Supported By",
+          "type": "array"
+        },
+        "objections": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Objection"
+          },
+          "title": "Objections",
+          "type": "array"
+        },
+        "evidence": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "estimate_hours": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimate Hours"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "type",
+        "proposed_by"
+      ],
+      "title": "Node",
+      "type": "object"
+    },
+    "Objection": {
+      "properties": {
+        "agent": {
+          "title": "Agent",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "severity": {
+          "default": "concern",
+          "enum": [
+            "blocking",
+            "concern"
+          ],
+          "title": "Severity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "agent",
+        "reason"
+      ],
+      "title": "Objection",
+      "type": "object"
+    },
+    "Outcome": {
+      "properties": {
+        "status": {
+          "enum": [
+            "in_progress",
+            "consensus",
+            "unresolved",
+            "escalated"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "summary": {
+          "default": "",
+          "title": "Summary",
+          "type": "string"
+        },
+        "rounds_used": {
+          "default": 0,
+          "title": "Rounds Used",
+          "type": "integer"
+        },
+        "open_disputes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Open Disputes",
+          "type": "array"
+        },
+        "hard_constraint_violations": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Hard Constraint Violations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "title": "Outcome",
+      "type": "object"
+    },
+    "Question": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "asked_by": {
+          "title": "Asked By",
+          "type": "string"
+        },
+        "question": {
+          "title": "Question",
+          "type": "string"
+        },
+        "why": {
+          "title": "Why",
+          "type": "string"
+        },
+        "priority": {
+          "default": 3,
+          "maximum": 5,
+          "minimum": 1,
+          "title": "Priority",
+          "type": "integer"
+        },
+        "answer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Answer"
+        }
+      },
+      "required": [
+        "id",
+        "asked_by",
+        "question",
+        "why"
+      ],
+      "title": "Question",
+      "type": "object"
+    },
+    "SelectedAgent": {
+      "description": "Why an agent is on the team: answers Level 2's 'explain selection'.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "capabilities": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Capabilities",
+          "type": "array"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "score": {
+          "title": "Score",
+          "type": "number"
+        },
+        "status": {
+          "default": "active",
+          "enum": [
+            "active",
+            "unavailable",
+            "replaced"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "replaced_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Replaced By"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "capabilities",
+        "reason",
+        "score"
+      ],
+      "title": "SelectedAgent",
+      "type": "object"
+    },
+    "Task": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "node_id": {
+          "title": "Node Id",
+          "type": "string"
+        },
+        "estimate_hours": {
+          "title": "Estimate Hours",
+          "type": "number"
+        },
+        "depends_on": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Depends On",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "node_id",
+        "estimate_hours"
+      ],
+      "title": "Task",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "session_id": {
+      "title": "Session Id",
+      "type": "string"
+    },
+    "idea": {
+      "title": "Idea",
+      "type": "string"
+    },
+    "constraints": {
+      "$ref": "#/$defs/Constraints"
+    },
+    "nodes": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Node"
+      },
+      "title": "Nodes",
+      "type": "array"
+    },
+    "questions": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Question"
+      },
+      "title": "Questions",
+      "type": "array"
+    },
+    "architecture": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Component"
+      },
+      "title": "Architecture",
+      "type": "array"
+    },
+    "tasks": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Task"
+      },
+      "title": "Tasks",
+      "type": "array"
+    },
+    "agents": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/SelectedAgent"
+      },
+      "title": "Agents",
+      "type": "array"
+    },
+    "negotiation": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/NegotiationMessage"
+      },
+      "title": "Negotiation",
+      "type": "array"
+    },
+    "events": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Event"
+      },
+      "title": "Events",
+      "type": "array"
+    },
+    "outcome": {
+      "$ref": "#/$defs/Outcome",
+      "default": {
+        "status": "in_progress",
+        "summary": "",
+        "rounds_used": 0,
+        "open_disputes": [],
+        "hard_constraint_violations": []
+      }
+    }
+  },
+  "required": [
+    "session_id",
+    "idea",
+    "constraints"
+  ],
+  "title": "Plan",
+  "type": "object"
+}

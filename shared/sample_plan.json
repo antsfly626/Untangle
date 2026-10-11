@@ -1,0 +1,193 @@
+{
+  "session_id": "demo-001",
+  "idea": "An AI study assistant for university students: organize notes, generate quizzes, maybe live collaboration. Two developers, accessible, low budget.",
+  "constraints": {
+    "developers": 2,
+    "deadline_hours": 24,
+    "budget_usd": 0,
+    "must_have": ["quiz generation", "keyboard accessible"],
+    "avoid": ["paid APIs"]
+  },
+  "nodes": [
+    {
+      "id": "root",
+      "label": "AI study assistant",
+      "type": "idea",
+      "status": "agreed",
+      "parent": null,
+      "proposed_by": "user",
+      "rationale": "User's core idea",
+      "supported_by": ["architect", "delivery", "evidence"]
+    },
+    {
+      "id": "f-notes",
+      "label": "Note upload & organization",
+      "type": "feature",
+      "status": "agreed",
+      "parent": "root",
+      "proposed_by": "architect",
+      "rationale": "Quizzes need source material",
+      "supported_by": ["architect", "delivery", "evidence"],
+      "estimate_hours": 4
+    },
+    {
+      "id": "f-quiz",
+      "label": "Quiz generation",
+      "type": "feature",
+      "status": "agreed",
+      "parent": "root",
+      "proposed_by": "architect",
+      "rationale": "Must-have from the user",
+      "supported_by": ["architect", "delivery", "evidence"],
+      "evidence": [
+        {
+          "title": "The Power of Testing Memory: Basic Research and Implications for Educational Practice",
+          "url": "https://doi.org/10.1111/j.1745-6916.2006.00012.x",
+          "year": 2006,
+          "source": "openalex",
+          "stance": "supports",
+          "summary": "Retrieval practice (self-testing) improves long-term retention more than re-reading.",
+          "abstract_only": true
+        }
+      ],
+      "estimate_hours": 6
+    },
+    {
+      "id": "f-collab",
+      "label": "Live collaboration",
+      "type": "feature",
+      "status": "deferred",
+      "parent": "root",
+      "proposed_by": "architect",
+      "rationale": "Study groups are common; differentiator",
+      "supported_by": ["architect"],
+      "objections": [
+        { "agent": "delivery", "reason": "Realtime sync adds ~10h; exceeds 24h budget with 2 devs", "severity": "blocking" },
+        { "agent": "evidence", "reason": "No evidence yet that target students want realtime collaboration", "severity": "concern" }
+      ],
+      "estimate_hours": 10
+    },
+    {
+      "id": "f-gamify",
+      "label": "Leaderboards & streaks",
+      "type": "feature",
+      "status": "disputed",
+      "parent": "root",
+      "proposed_by": "architect",
+      "rationale": "Motivation and retention",
+      "supported_by": ["architect"],
+      "objections": [
+        { "agent": "evidence", "reason": "Public leaderboards can reduce motivation for low performers", "severity": "concern" }
+      ],
+      "evidence": [
+        {
+          "title": "Does Gamification Work? A Literature Review of Empirical Studies on Gamification",
+          "url": "https://doi.org/10.1109/HICSS.2014.377",
+          "year": 2014,
+          "source": "semantic_scholar",
+          "stance": "inconclusive",
+          "summary": "Effects are mostly positive but depend heavily on context and users.",
+          "abstract_only": true
+        }
+      ],
+      "estimate_hours": 3
+    },
+    {
+      "id": "f-voice",
+      "label": "Voice note transcription",
+      "type": "feature",
+      "status": "rejected",
+      "parent": "root",
+      "proposed_by": "architect",
+      "rationale": "Hands-free capture",
+      "objections": [
+        { "agent": "delivery", "reason": "Requires a paid speech API; user said avoid paid APIs", "severity": "blocking" }
+      ]
+    },
+    {
+      "id": "c-a11y",
+      "label": "Keyboard navigation + screen-reader labels",
+      "type": "constraint",
+      "status": "agreed",
+      "parent": "root",
+      "proposed_by": "evidence",
+      "rationale": "Must-have from the user",
+      "supported_by": ["architect", "delivery", "evidence"]
+    },
+    {
+      "id": "r-hallucination",
+      "label": "Generated quiz answers may be wrong",
+      "type": "risk",
+      "status": "agreed",
+      "parent": "f-quiz",
+      "proposed_by": "evidence",
+      "rationale": "LLM output must cite the source note so students can verify",
+      "supported_by": ["evidence", "architect"]
+    },
+    {
+      "id": "q-audience",
+      "label": "Which courses / subjects first?",
+      "type": "question",
+      "status": "proposed",
+      "parent": "root",
+      "proposed_by": "evidence"
+    }
+  ],
+  "questions": [
+    {
+      "id": "q-audience",
+      "asked_by": "evidence",
+      "question": "Which subjects should the first version support?",
+      "why": "Quiz quality varies a lot between STEM and humanities notes",
+      "priority": 4,
+      "answer": null
+    },
+    {
+      "id": "q-devices",
+      "asked_by": "delivery",
+      "question": "Is mobile required, or is desktop web enough for the MVP?",
+      "why": "Mobile layout roughly doubles frontend effort",
+      "priority": 5,
+      "answer": "Desktop web is fine"
+    }
+  ],
+  "architecture": [
+    { "id": "a-web", "name": "Web app", "tech": "Next.js", "purpose": "Note upload, quizzes, accessible UI", "status": "agreed", "depends_on": ["a-api"] },
+    { "id": "a-api", "name": "Backend", "tech": "FastAPI (modular monolith)", "purpose": "Notes, quiz generation, auth", "status": "agreed", "depends_on": ["a-db", "a-llm"] },
+    { "id": "a-db", "name": "Database", "tech": "SQLite", "purpose": "Notes and quiz history", "status": "agreed", "depends_on": [] },
+    { "id": "a-llm", "name": "LLM provider", "tech": "LiteLLM proxy", "purpose": "Quiz generation", "status": "agreed", "depends_on": [] },
+    { "id": "a-realtime", "name": "Realtime sync", "tech": "WebSockets", "purpose": "Live collaboration", "status": "deferred", "depends_on": ["a-api"] }
+  ],
+  "tasks": [
+    { "id": "t1", "title": "Note upload endpoint + storage", "node_id": "f-notes", "estimate_hours": 4, "depends_on": [] },
+    { "id": "t2", "title": "Quiz generation with source citations", "node_id": "f-quiz", "estimate_hours": 6, "depends_on": ["t1"] },
+    { "id": "t3", "title": "Keyboard + screen-reader pass", "node_id": "c-a11y", "estimate_hours": 2, "depends_on": ["t2"] }
+  ],
+  "agents": [
+    { "id": "architect", "name": "Architect", "capabilities": ["system_design", "tech_selection"], "reason": "Core decision agent", "score": 1.0, "status": "active" },
+    { "id": "delivery", "name": "Delivery", "capabilities": ["estimation", "scoping"], "reason": "Core decision agent", "score": 1.0, "status": "active" },
+    { "id": "evidence", "name": "Evidence & Risk", "capabilities": ["risk_review", "accessibility", "evidence_review"], "reason": "Core decision agent", "score": 1.0, "status": "active" },
+    { "id": "scout-s2", "name": "Research Scout (Semantic Scholar)", "capabilities": ["paper_search"], "reason": "Idea makes learning-science claims; highest-ranked paper_search provider", "score": 0.92, "status": "replaced", "replaced_by": "scout-oa" },
+    { "id": "scout-oa", "name": "Research Scout (OpenAlex)", "capabilities": ["paper_search"], "reason": "Next-best available paper_search provider after Semantic Scholar failed", "score": 0.85, "status": "active" }
+  ],
+  "negotiation": [
+    { "round": 1, "phase": "propose", "agent": "architect", "message": "Ship notes, quizzes, live collaboration and leaderboards.", "target_node_ids": ["f-notes", "f-quiz", "f-collab", "f-gamify"], "scores": { "technical_quality": 0.8 } },
+    { "round": 1, "phase": "critique", "agent": "delivery", "message": "Total estimate 23h of 2 devs x 24h, but realtime sync is the riskiest piece. Reject collaboration.", "target_node_ids": ["f-collab"], "vote": "reject", "scores": { "feasibility": 0.35 } },
+    { "round": 1, "phase": "critique", "agent": "evidence", "message": "Quizzes are well supported by retrieval-practice research. Collaboration demand is unvalidated.", "target_node_ids": ["f-quiz", "f-collab"], "scores": { "evidence_quality": 0.5 } },
+    { "round": 2, "phase": "counteroffer", "agent": "architect", "message": "Defer collaboration; keep a WebSocket-ready API boundary so it can be added later.", "target_node_ids": ["f-collab", "a-realtime"], "counteroffer": "defer f-collab" },
+    { "round": 2, "phase": "vote", "agent": "architect", "message": "Accept: architecture stays extensible.", "vote": "accept", "scores": { "technical_quality": 0.75 } },
+    { "round": 2, "phase": "vote", "agent": "delivery", "message": "Accept: fits within 13h of core work.", "vote": "accept", "scores": { "feasibility": 0.85 } },
+    { "round": 2, "phase": "vote", "agent": "evidence", "message": "Accept, but leaderboards stay disputed until evidence is clearer.", "vote": "accept", "target_node_ids": ["f-gamify"], "scores": { "evidence_quality": 0.7 } }
+  ],
+  "events": [
+    { "id": "e1", "kind": "agent_recruited", "description": "Recruited Research Scout (Semantic Scholar) for paper_search", "at_round": 1, "reopened_node_ids": [] },
+    { "id": "e2", "kind": "provider_failure", "description": "Semantic Scholar unavailable; switched to OpenAlex", "at_round": 2, "reopened_node_ids": ["f-gamify"] }
+  ],
+  "outcome": {
+    "status": "escalated",
+    "summary": "Consensus on core MVP. Leaderboards remain disputed: subjective motivation tradeoff, asking the user.",
+    "rounds_used": 2,
+    "open_disputes": ["f-gamify"],
+    "hard_constraint_violations": []
+  }
+}
