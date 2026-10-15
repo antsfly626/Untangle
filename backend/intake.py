@@ -391,6 +391,7 @@ if __name__ == "__main__":
     from constraints import metrics
     from llm import stats
     from negotiation import negotiate
+    from plan_writer import write_plan
 
     printed = 0
 
@@ -419,6 +420,23 @@ if __name__ == "__main__":
         m = metrics(p)
         print(f"  -> {m['planned_hours']:.0f}h of {m['capacity_hours']:.0f}h, ${m['planned_cost_usd']:.0f}")
 
+    def show_build_plan(p: Plan) -> None:
+        labels = {n.id: n.label for n in p.nodes}
+        if p.architecture:
+            print("\nArchitecture:")
+            for c in p.architecture:
+                print(f"  {c.name} ({c.tech}): {c.purpose}")
+        if p.flow:
+            print("\nUser flow:")
+            for s in p.flow:
+                print(f"  {s.step}. {s.actor}: {s.action}")
+        if p.tasks:
+            print("\nTasks:")
+            for t in p.tasks:
+                print(f"  {t.title} ({t.estimate_hours:g}h) for {labels.get(t.node_id, t.node_id)}")
+        for note in p.plan_notes:
+            print(f"Note: {note}")
+
     def show_questions(p: Plan) -> None:
         qs = [q for q in open_questions(p)]
         if qs:
@@ -444,7 +462,10 @@ if __name__ == "__main__":
                     plan = await negotiate(plan, on_update=show_debate)
                     await show_debate(plan)
                     print(f"\nOutcome: {plan.outcome.status}: {plan.outcome.summary}")
+                    print("\nWriting the build plan...")
+                    plan = await write_plan(plan)
                     show_plan(plan)
+                    show_build_plan(plan)
                     pending = False
                 except Exception as err:  # stays pending: retried after the next message
                     print(f"Negotiation failed ({type(err).__name__}: {err}). Send any message to retry.")

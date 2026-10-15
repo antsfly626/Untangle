@@ -27,6 +27,7 @@ from pydantic import BaseModel
 
 from intake import ask, extract, ready_to_negotiate, skip_open_questions, update_from_user
 from negotiation import negotiate
+from plan_writer import write_plan
 from schemas import Plan
 from transport import default_transport
 from evidence.interfaces import router as evidence_router
@@ -103,6 +104,10 @@ async def _run_negotiation(session: Session) -> None:
         session.plan = await negotiate(session.plan, on_update=on_update, transport=TRANSPORT)
         session.summary = f"{session.plan.outcome.status}: {session.plan.outcome.summary}"
         session.error = None
+        session.publish()  # decisions are visible while the build plan is written
+        # The writer elaborates what was agreed (architecture, flow, edge cases, tasks).
+        # It never fails the session: on error it leaves a note in plan.plan_notes.
+        session.plan = await write_plan(session.plan)
     except Exception as err:  # keep the session usable; the next message retries
         session.error = f"Negotiation failed: {type(err).__name__}: {err}"
     session.status = "idle"

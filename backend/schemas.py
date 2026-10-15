@@ -94,6 +94,17 @@ class Component(BaseModel):
     purpose: str
     status: NodeStatus = "proposed"
     depends_on: list[str] = []
+    # Feature/requirement node ids this component serves.
+    node_ids: list[str] = []
+
+
+class FlowStep(BaseModel):
+    """One step of the main user journey, in order."""
+
+    step: int
+    actor: str
+    action: str
+    node_id: Optional[str] = None
 
 
 class Task(BaseModel):
@@ -160,7 +171,10 @@ class Plan(BaseModel):
     nodes: list[Node] = []
     questions: list[Question] = []
     architecture: list[Component] = []
+    flow: list[FlowStep] = []
     tasks: list[Task] = []
+    # Set when the plan writer could not elaborate the plan; the decisions still stand.
+    plan_notes: list[str] = []
     agents: list[SelectedAgent] = []
     negotiation: list[NegotiationMessage] = []
     events: list[Event] = []

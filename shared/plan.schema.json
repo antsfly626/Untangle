@@ -37,6 +37,14 @@
           },
           "title": "Depends On",
           "type": "array"
+        },
+        "node_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Node Ids",
+          "type": "array"
         }
       },
       "required": [
@@ -203,6 +211,42 @@
         "summary"
       ],
       "title": "Evidence",
+      "type": "object"
+    },
+    "FlowStep": {
+      "description": "One step of the main user journey, in order.",
+      "properties": {
+        "step": {
+          "title": "Step",
+          "type": "integer"
+        },
+        "actor": {
+          "title": "Actor",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "type": "string"
+        },
+        "node_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Node Id"
+        }
+      },
+      "required": [
+        "step",
+        "actor",
+        "action"
+      ],
+      "title": "FlowStep",
       "type": "object"
     },
     "NegotiationMessage": {
@@ -697,12 +741,28 @@
       "title": "Architecture",
       "type": "array"
     },
+    "flow": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/FlowStep"
+      },
+      "title": "Flow",
+      "type": "array"
+    },
     "tasks": {
       "default": [],
       "items": {
         "$ref": "#/$defs/Task"
       },
       "title": "Tasks",
+      "type": "array"
+    },
+    "plan_notes": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Plan Notes",
       "type": "array"
     },
     "agents": {

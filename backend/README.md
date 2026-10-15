@@ -191,6 +191,7 @@ the negotiation CLI uses SLIM when `UNTANGLE_TRANSPORT=slim` is set.
 | `agent_server.py` | Runs an agent as an A2A server on SLIM |
 | `llm.py` | LLM client for the LiteLLM proxy |
 | `test_rules.py` | Checks for the code-only rules |
+| `plan_writer.py` | After negotiation, turns agreed decisions into architecture, user flow, edge cases (risk nodes under features) and tasks; it never changes decisions (`python plan_writer.py` writes a plan for `runs/latest.json`) |
 | `baseline.py` | Single-LLM planner with no safeguards, for comparison |
 | `compare.py` | Eval: agents vs baseline on 3 ideas → `shared/baseline_comparison.json` (`--repeats N`) |
 | `api.py` | FastAPI app for sessions, SSE, and Evidence review |
